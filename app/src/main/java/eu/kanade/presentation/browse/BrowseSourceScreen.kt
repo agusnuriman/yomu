@@ -28,6 +28,7 @@ import eu.kanade.tachiyomi.network.enableSecureDns
 import eu.kanade.tachiyomi.network.secureDnsOffer
 import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.util.system.isOnline
+import eu.kanade.tachiyomi.util.system.networkStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import mihon.app.di.appGraph
 import mihon.icons.materialsymbols.MaterialSymbols
@@ -60,6 +61,7 @@ fun BrowseSourceContent(
     onLocalSourceHelpClick: () -> Unit,
     onMangaClick: (Manga) -> Unit,
     onMangaLongClick: (Manga) -> Unit,
+    allowSecureDns: Boolean = false,
 ) {
     val context = LocalContext.current
     val networkPreferences = remember { context.appGraph.networkPreferences }
@@ -71,10 +73,19 @@ fun BrowseSourceContent(
         with(context) { state.error.formattedMessage }
     }
 
-    // Hanya ditawarkan kalau perangkat sedang online: gagal koneksi tanpa jaringan
-    // bukan ulah DNS, dan menyuruh orang mengganti DNS justru menyesatkan.
+    // Dipantau, tidak dibaca sekali saat komposisi: koneksi bisa hilang sambil layar error
+    // tetap terbuka, dan tawaran DNS yang tertinggal setelah itu menyesatkan. Aliran jaringan
+    // hanya pemicu; nilainya tetap Context.isOnline() supaya satu definisi "online" dipakai
+    // di seluruh app (NET_CAPABILITY_VALIDATED sering false di emulator).
+    var online by remember { mutableStateOf(context.isOnline()) }
+    LaunchedEffect(context) {
+        context.networkStateFlow().collect { online = context.isOnline() }
+    }
+
+    // Hanya layar sumber yang menawarkan (allowSecureDns) dan hanya saat online: gagal koneksi
+    // tanpa jaringan bukan ulah DNS, dan pencarian migrasi belum perlu ditawari.
     val failedThrowable = (errorState as? LoadState.Error)?.error
-    val offerSecureDns = context.isOnline() &&
+    val offerSecureDns = allowSecureDns && online &&
         secureDnsOffer(failedThrowable?.message, networkPreferences.dohProvider.get())
 
     var showSecureDnsDialog by remember { mutableStateOf(false) }

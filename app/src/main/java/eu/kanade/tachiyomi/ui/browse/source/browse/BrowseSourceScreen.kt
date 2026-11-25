@@ -237,6 +237,7 @@ data class BrowseSourceScreen(
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     }
                 },
+                allowSecureDns = true,
             )
         }
 

@@ -1,10 +1,10 @@
 package eu.kanade.presentation.util
 
 import android.content.Context
-import eu.kanade.tachiyomi.network.DnsFailure
+import eu.kanade.tachiyomi.network.FailureText
 import eu.kanade.tachiyomi.network.HttpException
+import eu.kanade.tachiyomi.network.chooseFailureText
 import eu.kanade.tachiyomi.network.dnsFailureHost
-import eu.kanade.tachiyomi.network.dnsFailureShape
 import eu.kanade.tachiyomi.util.system.isOnline
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.data.source.NoResultsException
@@ -31,13 +31,15 @@ val Throwable.formattedMessage: String
 
             // Koneksi gagal ke alamat yang diberikan DNS: kemungkinan besar dibelokkan penyedia,
             // bukan sumbernya yang mati. Tanpa koneksi sama sekali, pesan offline yang dipakai
-            // supaya teks dan aksi di layar tidak saling bertentangan.
+            // supaya teks dan aksi di layar tidak saling bertentangan. Kegagalan yang bukan
+            // soal jaringan (file sumber lokal hilang, arsip rusak) tetap membawa pesannya
+            // sendiri.
             is IOException -> {
-                if (!context.isOnline()) {
+                val failureText = chooseFailureText(message, online = context.isOnline())
+                if (failureText == FailureText.Offline) {
                     return context.stringResource(MR.strings.exception_offline)
                 }
-                if (dnsFailureShape(message) == DnsFailure.BlockedOrUnreachable) {
-
+                if (failureText == FailureText.DnsBlocked) {
                     return context.stringResource(
                         MR.strings.exception_dns_blocked,
                         dnsFailureHost(message) ?: "",

@@ -25,11 +25,13 @@ class DnsBlockageTest {
     }
 
     @Test
-    fun ipv6AddressFailureIsBlockedOrUnreachable() {
+    fun ipv6AddressFailureIsNotDns() {
         evaluateDnsFailure(
             "Failed to connect to api.mangadex.org/2606:4700::64:443",
             dohEnabled = false,
-        ) shouldBe DnsFailure.BlockedOrUnreachable
+        ) shouldBe DnsFailure.NotDns
+        dnsFailureShape("Failed to connect to e-hentai.org/[2606:4700::64]:443") shouldBe
+            DnsFailure.NotDns
     }
 
     @Test
@@ -113,5 +115,46 @@ class DnsBlockageTest {
     fun otherMessagesYieldNoHost() {
         dnsFailureHost("HTTP error 503") shouldBe null
         dnsFailureHost(null) shouldBe null
+    }
+
+    @Test
+    fun offlineAddressFailureIsExplainedAsNoConnection() {
+        chooseFailureText(
+            "Failed to connect to api.mangadex.org/202.169.44.80:443",
+            online = false,
+        ) shouldBe FailureText.Offline
+        chooseFailureText(
+            "connect failed: ENETUNREACH (Network is unreachable)",
+            online = false,
+        ) shouldBe FailureText.Offline
+    }
+
+    @Test
+    fun offlineLocalFileFailureKeepsItsOwnMessage() {
+        chooseFailureText(
+            "No such file or directory: /storage/emulated/0/manga/chapter1.cbz",
+            online = false,
+        ) shouldBe FailureText.Raw
+        chooseFailureText("zip file is closed", online = false) shouldBe FailureText.Raw
+    }
+
+    @Test
+    fun onlinePoisonedAddressFailureNamesTheDomain() {
+        chooseFailureText(
+            "Failed to connect to api.mangadex.org/202.169.44.80:443",
+            online = true,
+        ) shouldBe FailureText.DnsBlocked
+        chooseFailureText(
+            "Unable to resolve host api.mangadex.org: no information for query",
+            online = true,
+        ) shouldBe FailureText.DnsBlocked
+    }
+
+    @Test
+    fun onlineNonAddressFailureKeepsItsOwnMessage() {
+        chooseFailureText("HTTP error 503", online = true) shouldBe FailureText.Raw
+        chooseFailureText("timeout", online = true) shouldBe FailureText.Raw
+        chooseFailureText("Failed to connect to localhost/127.0.0.1:9", online = true) shouldBe
+            FailureText.Raw
     }
 }

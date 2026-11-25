@@ -48,7 +48,9 @@ fun dnsFailureShape(message: String?): DnsFailure {
 
     val match = connectedAddressRegex.find(message) ?: return DnsFailure.NotDns
     val address = match.groupValues[2].removeSurrounding("[", "]").lowercase(Locale.ROOT)
-    if (address.contains(':')) return DnsFailure.BlockedOrUnreachable
+    // Alamat IPv6 tidak bisa dibandingkan dengan prefix sinkhole IPv4, jadi bentuk ini
+    // tidak memberi bukti apa pun soal DNS: biarkan pesannya bicara apa adanya.
+    if (address.contains(':')) return DnsFailure.NotDns
 
     val prefixMatched = knownRpzSinkholePrefixes.any { address.startsWith(it) }
     return if (prefixMatched) DnsFailure.BlockedOrUnreachable else DnsFailure.NotDns
@@ -57,4 +59,43 @@ fun dnsFailureShape(message: String?): DnsFailure {
 fun evaluateDnsFailure(message: String?, dohEnabled: Boolean): DnsFailure {
     if (dohEnabled) return DnsFailure.NotDns
     return dnsFailureShape(message)
+}
+
+/** Penjelasan yang dipakai untuk sebuah kegagalan IOException. */
+enum class FailureText {
+    /** Biarkan pesan aslinya lewat: tidak ada terjemahan yang jujur untuk kasus ini. */
+    Raw,
+
+    /** Tidak ada jalur keluar sama sekali; DNS bukan penyebabnya. */
+    Offline,
+
+    /** Alamat pemberian DNS tidak tercapai atau nama tidak bisa diterjemahkan. */
+    DnsBlocked,
+}
+
+/** Bentuk pesan kegagalan yang terjadi di tingkat jaringan. */
+private val networkLayerRegex = Regex(
+    "failed to connect|connect failed|socket failed|unable to resolve host|" +
+        "network is unreachable|enetunreach|ehostunreach|enonet|software caused connection abort",
+    RegexOption.IGNORE_CASE,
+)
+
+/**
+ * Kegagalan jaringan murni, dibedakan dari kegagalan IOException lain seperti file sumber
+ * lokal yang hilang atau arsip rusak, supaya pesan "tidak ada koneksi" tidak menutupi
+ * penyebab yang sebenarnya.
+ */
+fun isNetworkLayerFailure(message: String?): Boolean =
+    message != null && networkLayerRegex.containsMatchIn(message)
+
+/**
+ * Pilih penjelasan untuk kegagalan IOException: [FailureText.Offline] saat perangkat tidak
+ * punya jalur keluar, [FailureText.DnsBlocked] saat alamat DNS mencurigakan, dan
+ * [FailureText.Raw] untuk sisanya agar pesan aslinya tetap terbaca.
+ */
+fun chooseFailureText(message: String?, online: Boolean): FailureText {
+    if (!isNetworkLayerFailure(message)) return FailureText.Raw
+    if (!online) return FailureText.Offline
+    if (dnsFailureShape(message) == DnsFailure.BlockedOrUnreachable) return FailureText.DnsBlocked
+    return FailureText.Raw
 }
