@@ -75,4 +75,19 @@ class DnsBlockageTest {
         evaluateDnsFailure("HTTP error 503", dohEnabled = false) shouldBe DnsFailure.NotDns
         evaluateDnsFailure("timeout", dohEnabled = false) shouldBe DnsFailure.NotDns
     }
+
+    @Test
+    fun connectFailureYieldsBareHost() {
+        failedConnectHost("Failed to connect to api.mangadex.org/202.169.44.80:443") shouldBe
+            "api.mangadex.org"
+        failedConnectHost("Failed to connect to e-hentai.org/[2606:4700::64]:443") shouldBe
+            "e-hentai.org"
+    }
+
+    @Test
+    fun nonConnectFailureYieldsNoHost() {
+        failedConnectHost("Unable to resolve host api.mangadex.org: no information for query") shouldBe null
+        failedConnectHost("HTTP error 503") shouldBe null
+        failedConnectHost(null) shouldBe null
+    }
 }
