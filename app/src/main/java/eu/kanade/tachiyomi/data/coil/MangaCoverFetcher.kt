@@ -52,7 +52,7 @@ class MangaCoverFetcher(
     private val customCoverFileLazy: Lazy<File>,
     private val diskCacheKeyLazy: Lazy<String>,
     private val getSource: suspend () -> HttpSource?,
-    private val callFactoryLazy: Lazy<Call.Factory>,
+    private val callFactory: () -> Call.Factory,
     private val imageLoader: ImageLoader,
 ) : Fetcher {
 
@@ -171,7 +171,7 @@ class MangaCoverFetcher(
 
     private suspend fun executeNetworkRequest(): Response {
         val source = getSource()
-        val client = source?.client ?: callFactoryLazy.value
+        val client = source?.client ?: callFactory()
         val response = client.newCall(newRequest(source)).await()
         if (!response.isSuccessful && response.code != HTTP_NOT_MODIFIED) {
             response.close()
@@ -299,7 +299,7 @@ class MangaCoverFetcher(
     }
 
     class MangaFactory(
-        private val callFactoryLazy: Lazy<Call.Factory>,
+        private val callFactory: () -> Call.Factory,
         private val coverCache: CoverCache,
         private val sourceManager: SourceManager,
     ) : Fetcher.Factory<Manga> {
@@ -313,14 +313,14 @@ class MangaCoverFetcher(
                 customCoverFileLazy = lazy { coverCache.getCustomCoverFile(data.id) },
                 diskCacheKeyLazy = lazy { imageLoader.components.key(data, options)!! },
                 getSource = { sourceManager.get(data.source) as? HttpSource },
-                callFactoryLazy = callFactoryLazy,
+                callFactory = callFactory,
                 imageLoader = imageLoader,
             )
         }
     }
 
     class MangaCoverFactory(
-        private val callFactoryLazy: Lazy<Call.Factory>,
+        private val callFactory: () -> Call.Factory,
         private val coverCache: CoverCache,
         private val sourceManager: SourceManager,
     ) : Fetcher.Factory<MangaCover> {
@@ -334,7 +334,7 @@ class MangaCoverFetcher(
                 customCoverFileLazy = lazy { coverCache.getCustomCoverFile(data.mangaId) },
                 diskCacheKeyLazy = lazy { imageLoader.components.key(data, options)!! },
                 getSource = { sourceManager.get(data.sourceId) as? HttpSource },
-                callFactoryLazy = callFactoryLazy,
+                callFactory = callFactory,
                 imageLoader = imageLoader,
             )
         }

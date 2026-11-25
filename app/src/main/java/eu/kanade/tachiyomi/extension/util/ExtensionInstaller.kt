@@ -42,14 +42,14 @@ class ExtensionInstaller(
     @AppCoroutineScope private val scope: CoroutineScope,
     private val context: Context,
     basePreferences: BasePreferences,
-    networkHelper: NetworkHelper,
+    private val networkHelper: NetworkHelper,
 ) {
 
     private val activeJobs = ConcurrentHashMap<String, Job>()
     private val activeSteps = ConcurrentHashMap<Long, MutableStateFlow<InstallStep>>()
     private val extensionInstaller = basePreferences.extensionInstaller
 
-    private val httpClient: OkHttpClient by lazy { networkHelper.client }
+    private val httpClient: OkHttpClient get() = networkHelper.client
 
     /**
      * Adds the given extension to the downloads queue and returns an observable containing its

@@ -230,18 +230,18 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
 
     override fun newImageLoader(context: Context): ImageLoader {
         return ImageLoader.Builder(this).apply {
-            val callFactoryLazy = lazy { networkHelper.value.client }
+            val callFactory = { networkHelper.value.client }
             val coverCache = coverCache.value
             val sourceManager = sourceManager.value
             components {
                 // NetworkFetcher.Factory
-                add(OkHttpNetworkFetcherFactory(callFactoryLazy::value))
+                add(OkHttpNetworkFetcherFactory(callFactory))
                 // Decoder.Factory
                 add(ImageDecoder.Factory())
                 // Fetcher.Factory
                 add(BufferedSourceFetcher.Factory())
-                add(MangaCoverFetcher.MangaCoverFactory(callFactoryLazy, coverCache, sourceManager))
-                add(MangaCoverFetcher.MangaFactory(callFactoryLazy, coverCache, sourceManager))
+                add(MangaCoverFetcher.MangaCoverFactory(callFactory, coverCache, sourceManager))
+                add(MangaCoverFetcher.MangaFactory(callFactory, coverCache, sourceManager))
                 add(ExtensionIconFetcher.ExtensionFactory(context))
                 add(ExtensionIconFetcher.SourceFactory(context, extensionManager))
                 // Keyer
