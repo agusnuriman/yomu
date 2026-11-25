@@ -91,16 +91,16 @@ fun BrowseSourceContent(
     var showSecureDnsDialog by remember { mutableStateOf(false) }
     var secureDnsEnabledTick by remember { mutableStateOf(0) }
 
-    val secureDnsEnabledMessage = stringResource(MR.strings.secure_dns_enabled_restart)
+    val secureDnsEnabledMessage = stringResource(MR.strings.secure_dns_enabled)
 
     // Tick, bukan boolean: menulis ulang kuncinya di dalam efek ini membatalkan
     // coroutine-nya sendiri, sehingga snackbar hilang sebelum sempat terlihat.
     LaunchedEffect(secureDnsEnabledTick) {
         if (secureDnsEnabledTick == 0) return@LaunchedEffect
-        // Tidak ada aksi "restart": Android 10+ membatalkan peluncuran activity dari
-        // proses yang sudah dimatikan, jadi mematikan aplikasi atas nama pengguna
-        // membuat aplikasi hilang tanpa kembali. Sama seperti pref lain: minta
-        // pengguna membuka ulang lewat pesan ini.
+        // Tidak ada aksi "restart": begitu pref berubah, client dibangun ulang di tempat,
+        // jadi yang perlu dilakukan pengguna cuma mencoba lagi. Mematikan aplikasi atas
+        // nama pengguna juga bukan opsi — Android 10+ membatalkan peluncuran activity
+        // dari proses yang sudah dimatikan, sehingga aplikasi hilang tanpa kembali.
         snackbarHostState.showSnackbar(secureDnsEnabledMessage)
     }
 

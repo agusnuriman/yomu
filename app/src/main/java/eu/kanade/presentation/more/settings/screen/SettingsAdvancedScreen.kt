@@ -96,19 +96,11 @@ object SettingsAdvancedScreen : SearchableSettings {
                 preference = networkPreferences.verboseLogging,
                 title = stringResource(MR.strings.pref_verbose_logging),
                 subtitle = stringResource(MR.strings.pref_verbose_logging_summary),
-                onValueChanged = {
-                    context.toast(MR.strings.requires_app_restart)
-                    true
-                },
             ),
             Preference.PreferenceItem.SwitchPreference(
                 preference = networkPreferences.redactSensitiveHeaders,
                 title = stringResource(MR.strings.pref_redact_sensitive_headers),
                 subtitle = stringResource(MR.strings.pref_redact_sensitive_headers_summary),
-                onValueChanged = {
-                    context.toast(MR.strings.requires_app_restart)
-                    true
-                },
             ),
             Preference.PreferenceItem.TextPreference(
                 title = stringResource(MR.strings.pref_debug_info),
@@ -275,8 +267,6 @@ object SettingsAdvancedScreen : SearchableSettings {
     private fun getDnsGroup(
         networkPreferences: NetworkPreferences,
     ): Preference.PreferenceGroup {
-        val context = LocalContext.current
-
         return Preference.PreferenceGroup(
             title = stringResource(MR.strings.secure_dns_group),
             preferenceItems = listOf(
@@ -298,10 +288,6 @@ object SettingsAdvancedScreen : SearchableSettings {
                         PREF_DOH_SHECAN to "Shecan",
                     ),
                     title = stringResource(MR.strings.pref_dns_over_https),
-                    onValueChanged = {
-                        context.toast(MR.strings.requires_app_restart)
-                        true
-                    },
                 ),
             ),
         )
