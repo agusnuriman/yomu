@@ -698,6 +698,11 @@
     <string name="exception_offline">Tidak ada koneksi Internet</string>
     <string name="exception_http">HTTP %d, periksa situs web di WebView</string>
     <string name="exception_unknown_host">Tidak dapat mencapai %s</string>
+    <string name="exception_dns_blocked">Tidak bisa menghubungi %s. Alamatnya mungkin dibelokkan penyedia internetmu, atau memang tidak bisa diterjemahkan.</string>
+    <string name="action_use_secure_dns">Pakai DNS aman</string>
+    <string name="secure_dns_dialog_title">Pakai DNS aman?</string>
+    <string name="secure_dns_dialog_message">%s akan dicari lewat Cloudflare DNS, bukan DNS penyedia internetmu. Buka ulang aplikasi untuk menerapkannya.</string>
+    <string name="secure_dns_enabled_restart">DNS aman diaktifkan. Buka ulang aplikasi untuk menerapkannya.</string>
     <string name="action_move_to_bottom_all_for_series">Pindahkan seri ke bawah</string>
     <string name="pref_relative_format">Penanda waktu</string>
     <string name="pref_relative_format_summary">\"%1$s\" seharusnya \"%2$s\"</string>

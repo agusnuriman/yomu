@@ -1037,6 +1037,11 @@
     <string name="exception_http">HTTP %d, check website in WebView</string>
     <string name="exception_offline">No Internet connection</string>
     <string name="exception_unknown_host">Couldn\'t reach %s</string>
+    <string name="exception_dns_blocked">Couldn\'t reach %s. The address may be redirected by your internet provider, or it may not resolve.</string>
+    <string name="action_use_secure_dns">Use secure DNS</string>
+    <string name="secure_dns_dialog_title">Use secure DNS?</string>
+    <string name="secure_dns_dialog_message">%s will be looked up through Cloudflare DNS instead of your provider\'s DNS. Restart the app to apply.</string>
+    <string name="secure_dns_enabled_restart">Secure DNS enabled. Restart the app to apply.</string>
 
     <!-- Notes screen -->
     <string name="notes_placeholder">Enjoyed the part where…</string>
