@@ -28,8 +28,6 @@ import eu.kanade.tachiyomi.network.enableSecureDns
 import eu.kanade.tachiyomi.network.secureDnsOffer
 import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.util.system.isOnline
-import eu.kanade.tachiyomi.util.system.restartApp
-import eu.kanade.tachiyomi.util.system.toast
 import kotlinx.coroutines.flow.StateFlow
 import mihon.app.di.appGraph
 import mihon.icons.materialsymbols.MaterialSymbols
@@ -80,22 +78,19 @@ fun BrowseSourceContent(
         secureDnsOffer(failedThrowable?.message, networkPreferences.dohProvider.get())
 
     var showSecureDnsDialog by remember { mutableStateOf(false) }
-    var secureDnsJustEnabled by remember { mutableStateOf(false) }
+    var secureDnsEnabledTick by remember { mutableStateOf(0) }
 
-    val restartActionLabel = stringResource(MR.strings.crash_screen_restart_application)
     val secureDnsEnabledMessage = stringResource(MR.strings.secure_dns_enabled_restart)
 
-    LaunchedEffect(secureDnsJustEnabled) {
-        if (!secureDnsJustEnabled) return@LaunchedEffect
-        secureDnsJustEnabled = false
-        val result = snackbarHostState.showSnackbar(
-            message = secureDnsEnabledMessage,
-            actionLabel = restartActionLabel,
-            duration = SnackbarDuration.Long,
-        )
-        if (result == SnackbarResult.ActionPerformed) {
-            context.restartApp { context.toast(MR.strings.requires_app_restart) }
-        }
+    // Tick, bukan boolean: menulis ulang kuncinya di dalam efek ini membatalkan
+    // coroutine-nya sendiri, sehingga snackbar hilang sebelum sempat terlihat.
+    LaunchedEffect(secureDnsEnabledTick) {
+        if (secureDnsEnabledTick == 0) return@LaunchedEffect
+        // Tidak ada aksi "restart": Android 10+ membatalkan peluncuran activity dari
+        // proses yang sudah dimatikan, jadi mematikan aplikasi atas nama pengguna
+        // membuat aplikasi hilang tanpa kembali. Sama seperti pref lain: minta
+        // pengguna membuka ulang lewat pesan ini.
+        snackbarHostState.showSnackbar(secureDnsEnabledMessage)
     }
 
     LaunchedEffect(errorState) {
@@ -180,7 +175,7 @@ fun BrowseSourceContent(
                         onClick = {
                             networkPreferences.enableSecureDns()
                             showSecureDnsDialog = false
-                            secureDnsJustEnabled = true
+                            secureDnsEnabledTick++
                         },
                     ) { Text(stringResource(MR.strings.action_ok)) }
                 },
