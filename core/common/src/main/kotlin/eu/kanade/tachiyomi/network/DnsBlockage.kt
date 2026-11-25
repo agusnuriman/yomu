@@ -36,8 +36,13 @@ fun dnsFailureHost(message: String?): String? {
     return null
 }
 
-fun evaluateDnsFailure(message: String?, dohEnabled: Boolean): DnsFailure {
-    if (dohEnabled || message.isNullOrEmpty()) return DnsFailure.NotDns
+/**
+ * Bentuk kegagalan alamat murni, tanpa mempedulikan status DNS aman. Teks error memakainya
+ * supaya kegagalan alamat tetap dijelaskan dengan nama domain, walau penawarannya tidak
+ * ditawarkan lagi karena DNS aman sudah menyala.
+ */
+fun dnsFailureShape(message: String?): DnsFailure {
+    if (message.isNullOrEmpty()) return DnsFailure.NotDns
 
     if (message.startsWith("Unable to resolve host")) return DnsFailure.BlockedOrUnreachable
 
@@ -47,4 +52,9 @@ fun evaluateDnsFailure(message: String?, dohEnabled: Boolean): DnsFailure {
 
     val prefixMatched = knownRpzSinkholePrefixes.any { address.startsWith(it) }
     return if (prefixMatched) DnsFailure.BlockedOrUnreachable else DnsFailure.NotDns
+}
+
+fun evaluateDnsFailure(message: String?, dohEnabled: Boolean): DnsFailure {
+    if (dohEnabled) return DnsFailure.NotDns
+    return dnsFailureShape(message)
 }

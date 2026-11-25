@@ -77,6 +77,23 @@ class DnsBlockageTest {
     }
 
     @Test
+    fun shapeStaysDnsShapedWhenDohAlreadyEnabled() {
+        dnsFailureShape("Failed to connect to api.mangadex.org/202.169.44.80:443") shouldBe
+            DnsFailure.BlockedOrUnreachable
+        dnsFailureShape("Unable to resolve host api.mangadex.org: no information for query") shouldBe
+            DnsFailure.BlockedOrUnreachable
+    }
+
+    @Test
+    fun shapeNotDnsForNonAddressMessages() {
+        dnsFailureShape(null) shouldBe DnsFailure.NotDns
+        dnsFailureShape("") shouldBe DnsFailure.NotDns
+        dnsFailureShape("HTTP error 503") shouldBe DnsFailure.NotDns
+        dnsFailureShape("Failed to connect to api.mangadex.org/45.129.229.1:443") shouldBe
+            DnsFailure.NotDns
+    }
+
+    @Test
     fun connectFailureYieldsBareHost() {
         dnsFailureHost("Failed to connect to api.mangadex.org/202.169.44.80:443") shouldBe
             "api.mangadex.org"

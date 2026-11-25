@@ -1,11 +1,11 @@
 package eu.kanade.presentation.util
 
 import android.content.Context
+import eu.kanade.tachiyomi.network.DnsFailure
 import eu.kanade.tachiyomi.network.HttpException
 import eu.kanade.tachiyomi.network.dnsFailureHost
-import eu.kanade.tachiyomi.network.secureDnsOffer
+import eu.kanade.tachiyomi.network.dnsFailureShape
 import eu.kanade.tachiyomi.util.system.isOnline
-import mihon.app.di.appGraph
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.data.source.NoResultsException
 import tachiyomi.domain.source.model.SourceNotInstalledException
@@ -36,8 +36,8 @@ val Throwable.formattedMessage: String
                 if (!context.isOnline()) {
                     return context.stringResource(MR.strings.exception_offline)
                 }
-                val dohProvider = context.appGraph.networkPreferences.dohProvider.get()
-                if (secureDnsOffer(message, dohProvider)) {
+                if (dnsFailureShape(message) == DnsFailure.BlockedOrUnreachable) {
+
                     return context.stringResource(
                         MR.strings.exception_dns_blocked,
                         dnsFailureHost(message) ?: "",
