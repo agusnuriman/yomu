@@ -3,11 +3,18 @@ package eu.kanade.presentation.browse
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.paging.LoadState
@@ -17,12 +24,19 @@ import eu.kanade.presentation.browse.components.BrowseSourceCompactGrid
 import eu.kanade.presentation.browse.components.BrowseSourceList
 import eu.kanade.presentation.components.AppBar
 import eu.kanade.presentation.util.formattedMessage
+import eu.kanade.tachiyomi.network.enableSecureDns
+import eu.kanade.tachiyomi.network.secureDnsOffer
 import eu.kanade.tachiyomi.source.Source
+import eu.kanade.tachiyomi.util.system.isOnline
+import eu.kanade.tachiyomi.util.system.restartApp
+import eu.kanade.tachiyomi.util.system.toast
 import kotlinx.coroutines.flow.StateFlow
+import mihon.app.di.appGraph
 import mihon.icons.materialsymbols.MaterialSymbols
 import mihon.icons.materialsymbols.automirroredrounded.Help
 import mihon.icons.materialsymbols.rounded.Public
 import mihon.icons.materialsymbols.rounded.Refresh
+import mihon.icons.materialsymbols.rounded.Security
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.domain.library.model.LibraryDisplayMode
 import tachiyomi.domain.manga.model.Manga
@@ -50,12 +64,38 @@ fun BrowseSourceContent(
     onMangaLongClick: (Manga) -> Unit,
 ) {
     val context = LocalContext.current
+    val networkPreferences = remember { context.appGraph.networkPreferences }
 
     val errorState = mangaList.loadState.refresh.takeIf { it is LoadState.Error }
         ?: mangaList.loadState.append.takeIf { it is LoadState.Error }
 
     val getErrorMessage: (LoadState.Error) -> String = { state ->
         with(context) { state.error.formattedMessage }
+    }
+
+    // Hanya ditawarkan kalau perangkat sedang online: gagal koneksi tanpa jaringan
+    // bukan ulah DNS, dan menyuruh orang mengganti DNS justru menyesatkan.
+    val failedThrowable = (errorState as? LoadState.Error)?.error
+    val offerSecureDns = context.isOnline() &&
+        secureDnsOffer(failedThrowable?.message, networkPreferences.dohProvider.get())
+
+    var showSecureDnsDialog by remember { mutableStateOf(false) }
+    var secureDnsJustEnabled by remember { mutableStateOf(false) }
+
+    val restartActionLabel = stringResource(MR.strings.crash_screen_restart_application)
+    val secureDnsEnabledMessage = stringResource(MR.strings.secure_dns_enabled_restart)
+
+    LaunchedEffect(secureDnsJustEnabled) {
+        if (!secureDnsJustEnabled) return@LaunchedEffect
+        secureDnsJustEnabled = false
+        val result = snackbarHostState.showSnackbar(
+            message = secureDnsEnabledMessage,
+            actionLabel = restartActionLabel,
+            duration = SnackbarDuration.Long,
+        )
+        if (result == SnackbarResult.ActionPerformed) {
+            context.restartApp { context.toast(MR.strings.requires_app_restart) }
+        }
     }
 
     LaunchedEffect(errorState) {
@@ -93,25 +133,64 @@ fun BrowseSourceContent(
                     ),
                 )
             } else {
-                listOf(
-                    EmptyScreenAction(
-                        stringRes = MR.strings.action_retry,
-                        icon = MaterialSymbols.Rounded.Refresh,
-                        onClick = mangaList::refresh,
-                    ),
-                    EmptyScreenAction(
-                        stringRes = MR.strings.action_open_in_web_view,
-                        icon = MaterialSymbols.Rounded.Public,
-                        onClick = onWebViewClick,
-                    ),
-                    EmptyScreenAction(
-                        stringRes = MR.strings.label_help,
-                        icon = MaterialSymbols.AutoMirroredRounded.Help,
-                        onClick = onHelpClick,
-                    ),
-                )
+                buildList {
+                    add(
+                        EmptyScreenAction(
+                            stringRes = MR.strings.action_retry,
+                            icon = MaterialSymbols.Rounded.Refresh,
+                            onClick = mangaList::refresh,
+                        ),
+                    )
+                    if (offerSecureDns) {
+                        add(
+                            EmptyScreenAction(
+                                stringRes = MR.strings.action_use_secure_dns,
+                                icon = MaterialSymbols.Rounded.Security,
+                                onClick = { showSecureDnsDialog = true },
+                            ),
+                        )
+                    }
+                    add(
+                        EmptyScreenAction(
+                            stringRes = MR.strings.action_open_in_web_view,
+                            icon = MaterialSymbols.Rounded.Public,
+                            onClick = onWebViewClick,
+                        ),
+                    )
+                    add(
+                        EmptyScreenAction(
+                            stringRes = MR.strings.label_help,
+                            icon = MaterialSymbols.AutoMirroredRounded.Help,
+                            onClick = onHelpClick,
+                        ),
+                    )
+                }
             },
         )
+
+        if (showSecureDnsDialog) {
+            AlertDialog(
+                onDismissRequest = { showSecureDnsDialog = false },
+                title = { Text(stringResource(MR.strings.secure_dns_dialog_title)) },
+                text = {
+                    Text(stringResource(MR.strings.secure_dns_dialog_message, source?.name ?: ""))
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            networkPreferences.enableSecureDns()
+                            showSecureDnsDialog = false
+                            secureDnsJustEnabled = true
+                        },
+                    ) { Text(stringResource(MR.strings.action_ok)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showSecureDnsDialog = false }) {
+                        Text(stringResource(MR.strings.action_cancel))
+                    }
+                },
+            )
+        }
 
         return
     }
