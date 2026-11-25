@@ -130,6 +130,7 @@ object SettingsAdvancedScreen : SearchableSettings {
             getBackgroundActivityGroup(),
             getDataGroup(),
             getNetworkGroup(networkPreferences = networkPreferences),
+            getDnsGroup(networkPreferences = networkPreferences),
             getLibraryGroup(libraryPreferences = libraryPreferences),
             getReaderGroup(basePreferences = basePreferences),
             getExtensionsGroup(basePreferences = basePreferences),
@@ -243,29 +244,6 @@ object SettingsAdvancedScreen : SearchableSettings {
                         }
                     },
                 ),
-                Preference.PreferenceItem.ListPreference(
-                    preference = networkPreferences.dohProvider,
-                    entries = mapOf(
-                        -1 to stringResource(MR.strings.disabled),
-                        PREF_DOH_CLOUDFLARE to "Cloudflare",
-                        PREF_DOH_GOOGLE to "Google",
-                        PREF_DOH_ADGUARD to "AdGuard",
-                        PREF_DOH_QUAD9 to "Quad9",
-                        PREF_DOH_ALIDNS to "AliDNS",
-                        PREF_DOH_DNSPOD to "DNSPod",
-                        PREF_DOH_360 to "360",
-                        PREF_DOH_QUAD101 to "Quad 101",
-                        PREF_DOH_MULLVAD to "Mullvad",
-                        PREF_DOH_CONTROLD to "Control D",
-                        PREF_DOH_NJALLA to "Njalla",
-                        PREF_DOH_SHECAN to "Shecan",
-                    ),
-                    title = stringResource(MR.strings.pref_dns_over_https),
-                    onValueChanged = {
-                        context.toast(MR.strings.requires_app_restart)
-                        true
-                    },
-                ),
                 Preference.PreferenceItem.EditTextPreference(
                     preference = userAgentPref,
                     title = stringResource(MR.strings.pref_user_agent_string),
@@ -287,6 +265,42 @@ object SettingsAdvancedScreen : SearchableSettings {
                     onClick = {
                         userAgentPref.delete()
                         context.toast(MR.strings.requires_app_restart)
+                    },
+                ),
+            ),
+        )
+    }
+
+    @Composable
+    private fun getDnsGroup(
+        networkPreferences: NetworkPreferences,
+    ): Preference.PreferenceGroup {
+        val context = LocalContext.current
+
+        return Preference.PreferenceGroup(
+            title = stringResource(MR.strings.secure_dns_group),
+            preferenceItems = listOf(
+                Preference.PreferenceItem.ListPreference(
+                    preference = networkPreferences.dohProvider,
+                    entries = mapOf(
+                        -1 to stringResource(MR.strings.disabled),
+                        PREF_DOH_CLOUDFLARE to "Cloudflare",
+                        PREF_DOH_GOOGLE to "Google",
+                        PREF_DOH_ADGUARD to "AdGuard",
+                        PREF_DOH_QUAD9 to "Quad9",
+                        PREF_DOH_ALIDNS to "AliDNS",
+                        PREF_DOH_DNSPOD to "DNSPod",
+                        PREF_DOH_360 to "360",
+                        PREF_DOH_QUAD101 to "Quad 101",
+                        PREF_DOH_MULLVAD to "Mullvad",
+                        PREF_DOH_CONTROLD to "Control D",
+                        PREF_DOH_NJALLA to "Njalla",
+                        PREF_DOH_SHECAN to "Shecan",
+                    ),
+                    title = stringResource(MR.strings.pref_dns_over_https),
+                    onValueChanged = {
+                        context.toast(MR.strings.requires_app_restart)
+                        true
                     },
                 ),
             ),

@@ -700,6 +700,7 @@
     <string name="exception_unknown_host">Tidak dapat mencapai %s</string>
     <string name="exception_dns_blocked">Tidak bisa menghubungi %s. Alamatnya mungkin dibelokkan penyedia internetmu, atau memang tidak bisa diterjemahkan.</string>
     <string name="action_use_secure_dns">Pakai DNS aman</string>
+    <string name="secure_dns_group">DNS aman</string>
     <string name="secure_dns_dialog_title">Pakai DNS aman?</string>
     <string name="secure_dns_dialog_message">%s akan dicari lewat Cloudflare DNS, bukan DNS penyedia internetmu. Buka ulang aplikasi untuk menerapkannya.</string>
     <string name="secure_dns_enabled_restart">DNS aman diaktifkan. Buka ulang aplikasi untuk menerapkannya.</string>
