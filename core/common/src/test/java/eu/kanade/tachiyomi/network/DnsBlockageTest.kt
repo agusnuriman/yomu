@@ -78,16 +78,23 @@ class DnsBlockageTest {
 
     @Test
     fun connectFailureYieldsBareHost() {
-        failedConnectHost("Failed to connect to api.mangadex.org/202.169.44.80:443") shouldBe
+        dnsFailureHost("Failed to connect to api.mangadex.org/202.169.44.80:443") shouldBe
             "api.mangadex.org"
-        failedConnectHost("Failed to connect to e-hentai.org/[2606:4700::64]:443") shouldBe
+        dnsFailureHost("Failed to connect to e-hentai.org/[2606:4700::64]:443") shouldBe
             "e-hentai.org"
     }
 
     @Test
-    fun nonConnectFailureYieldsNoHost() {
-        failedConnectHost("Unable to resolve host api.mangadex.org: no information for query") shouldBe null
-        failedConnectHost("HTTP error 503") shouldBe null
-        failedConnectHost(null) shouldBe null
+    fun unresolvedHostYieldsDomain() {
+        dnsFailureHost("""Unable to resolve host "api.mangadex.org": No address associated with hostname""") shouldBe
+            "api.mangadex.org"
+        dnsFailureHost("Unable to resolve host api.mangadex.org: no information for query") shouldBe
+            "api.mangadex.org"
+    }
+
+    @Test
+    fun otherMessagesYieldNoHost() {
+        dnsFailureHost("HTTP error 503") shouldBe null
+        dnsFailureHost(null) shouldBe null
     }
 }

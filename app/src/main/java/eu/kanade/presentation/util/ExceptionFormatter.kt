@@ -2,7 +2,7 @@ package eu.kanade.presentation.util
 
 import android.content.Context
 import eu.kanade.tachiyomi.network.HttpException
-import eu.kanade.tachiyomi.network.failedConnectHost
+import eu.kanade.tachiyomi.network.dnsFailureHost
 import eu.kanade.tachiyomi.network.secureDnsOffer
 import eu.kanade.tachiyomi.util.system.isOnline
 import mihon.app.di.appGraph
@@ -30,13 +30,17 @@ val Throwable.formattedMessage: String
             is SourceNotInstalledException -> return context.stringResource(MR.strings.loader_not_implemented_error)
 
             // Koneksi gagal ke alamat yang diberikan DNS: kemungkinan besar dibelokkan penyedia,
-            // bukan sumbernya yang mati. Hanya diganti kalau tawaran DNS aman memang relevan.
+            // bukan sumbernya yang mati. Tanpa koneksi sama sekali, pesan offline yang dipakai
+            // supaya teks dan aksi di layar tidak saling bertentangan.
             is IOException -> {
+                if (!context.isOnline()) {
+                    return context.stringResource(MR.strings.exception_offline)
+                }
                 val dohProvider = context.appGraph.networkPreferences.dohProvider.get()
                 if (secureDnsOffer(message, dohProvider)) {
                     return context.stringResource(
                         MR.strings.exception_dns_blocked,
-                        failedConnectHost(message) ?: "",
+                        dnsFailureHost(message) ?: "",
                     )
                 }
             }

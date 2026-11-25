@@ -20,13 +20,21 @@ enum class DnsFailure {
 private val connectedAddressRegex =
     Regex("""Failed to connect to ([^/\s]+)/(\[[^\]]+]|[0-9a-fA-F:.]+):\d+""")
 
+/** Bentuk pesan Android/OkHttp ketika nama domain tidak bisa diterjemahkan sama sekali. */
+private val unresolvedHostRegex = Regex("""Unable to resolve host "?([^"':\s]+)""")
+
 /**
- * Nama host dari pesan "Failed to connect to <host>/<ip>:<port>" milik OkHttp, atau null kalau
- * pesannya bukan kegagalan koneksi. Dipakai agar teks error menyebut domain, bukan mentahan
- * pesan Java.
+ * Nama host dari pesan kegagalan alamat milik OkHttp/Android, baik bentuk
+ * `Failed to connect to <host>/<ip>:<port>` maupun `Unable to resolve host <host>`, atau null
+ * kalau pesannya bukan kegagalan alamat. Dipakai agar teks error menyebut domain, bukan
+ * mentahan pesan Java.
  */
-fun failedConnectHost(message: String?): String? =
-    message?.let { connectedAddressRegex.find(it) }?.groupValues?.get(1)
+fun dnsFailureHost(message: String?): String? {
+    if (message == null) return null
+    connectedAddressRegex.find(message)?.let { return it.groupValues[1] }
+    unresolvedHostRegex.find(message)?.let { return it.groupValues[1] }
+    return null
+}
 
 fun evaluateDnsFailure(message: String?, dohEnabled: Boolean): DnsFailure {
     if (dohEnabled || message.isNullOrEmpty()) return DnsFailure.NotDns
