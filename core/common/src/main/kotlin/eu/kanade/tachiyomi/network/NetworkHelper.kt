@@ -9,7 +9,6 @@ import eu.kanade.tachiyomi.network.interceptor.UncaughtExceptionInterceptor
 import eu.kanade.tachiyomi.network.interceptor.UserAgentInterceptor
 import kotlinx.coroutines.CoroutineScope
 import mihon.core.metro.AppCoroutineScope
-import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import java.io.File
@@ -26,25 +25,30 @@ class NetworkHelper(
 
     val cookieJar = AndroidCookieJar()
 
-    private fun clientBuilder(): OkHttpClient.Builder = run {
+    /**
+     * Dipegang di luar builder: setiap client yang pernah dibangun memakai cache, dispatcher, dan
+     * connection pool yang sama, jadi rebuild tidak pernah membuka dua Cache di direktori yang sama.
+     */
+    private val resources = NetworkResources(File(context.cacheDir, "network_cache"))
+
+    private val host = NetworkClientHost(scope, preferences, resources, ::buildClient)
+
+    private fun buildClient(resources: NetworkResources, signature: ClientSignature): OkHttpClient {
         val builder = OkHttpClient.Builder()
             .cookieJar(cookieJar)
             .connectTimeout(30.seconds)
             .readTimeout(30.seconds)
             .callTimeout(2.minutes)
-            .cache(
-                Cache(
-                    directory = File(context.cacheDir, "network_cache"),
-                    maxSize = 5L * 1024 * 1024, // 5 MiB
-                ),
-            )
+            .cache(resources.cache)
+            .dispatcher(resources.dispatcher)
+            .connectionPool(resources.connectionPool)
             .addInterceptor(UncaughtExceptionInterceptor())
             .addInterceptor(UserAgentInterceptor(::defaultUserAgentProvider))
 
-        if (preferences.verboseLogging.get()) {
+        if (signature.verboseLogging) {
             val httpLoggingInterceptor = HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.HEADERS
-                if (preferences.redactSensitiveHeaders.get()) {
+                if (signature.redactSensitiveHeaders) {
                     redactHeader("Authorization")
                     redactHeader("Auth")
                 }
@@ -52,7 +56,7 @@ class NetworkHelper(
             builder.addNetworkInterceptor(httpLoggingInterceptor)
         }
 
-        when (preferences.dohProvider.get()) {
+        val dohBuilder = when (signature.dohProvider) {
             PREF_DOH_CLOUDFLARE -> builder.dohCloudflare()
             PREF_DOH_GOOGLE -> builder.dohGoogle()
             PREF_DOH_ADGUARD -> builder.dohAdGuard()
@@ -67,15 +71,16 @@ class NetworkHelper(
             PREF_DOH_SHECAN -> builder.dohShecan()
             else -> builder
         }
-    }
 
-    val client: OkHttpClient by lazy {
-        clientBuilder()
+        return dohBuilder
             .addInterceptor(
                 CloudflareInterceptor(context, cookieJar, scope, ::defaultUserAgentProvider),
             )
             .build()
     }
+
+    /** Client yang dipakai seluruh app. Ikut dibangun ulang saat pref yang dibacanya berubah. */
+    val client: OkHttpClient get() = host.client
 
     /**
      * @deprecated Since extension-lib 1.5
