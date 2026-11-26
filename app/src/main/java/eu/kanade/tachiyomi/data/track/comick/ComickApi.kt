@@ -3,6 +3,7 @@ package eu.kanade.tachiyomi.data.track.comick
 import android.net.Uri
 import androidx.core.net.toUri
 import eu.kanade.tachiyomi.BuildConfig
+import eu.kanade.tachiyomi.YomuConstants
 import eu.kanade.tachiyomi.data.database.models.Track
 import eu.kanade.tachiyomi.data.track.comick.dto.ComickLibraryEntry
 import eu.kanade.tachiyomi.data.track.comick.dto.ComickOAuth
@@ -54,9 +55,9 @@ class ComickApi(
                 .header(
                     "User-Agent",
                     buildString {
-                        append("Mihon/v${BuildConfig.VERSION_NAME} ")
+                        append("Yomu/v${BuildConfig.VERSION_NAME} ")
                         append("(${BuildConfig.APPLICATION_ID}) ${BuildConfig.COMMIT_SHA}) ")
-                        append("(Android) (https://github.com/mihonapp/mihon)")
+                        append("(Android) (${YomuConstants.GITHUB_URL})")
                     },
                 )
                 .header("Accept", jsonMime.toString())

@@ -14,8 +14,8 @@ object TelemetryConfig {
     private var crashlytics: FirebaseCrashlytics? = null
 
     fun init(context: Context) {
-        // To stop forks/test builds from polluting our data
-        if (!context.isMihonProductionApp()) return
+        // Only official Yomu builds may report telemetry
+        if (!context.isYomuProductionApp()) return
 
         // Check if Google Play Services is available before initializing Firebase
         if (!isGooglePlayServicesAvailable(context)) {
@@ -52,12 +52,12 @@ object TelemetryConfig {
         crashlytics?.isCrashlyticsCollectionEnabled = enabled
     }
 
-    private fun Context.isMihonProductionApp(): Boolean {
-        if (packageName !in MIHON_PACKAGES) return false
+    private fun Context.isYomuProductionApp(): Boolean {
+        if (packageName !in YOMU_PACKAGES) return false
 
         return packageManager.getPackageInfo(packageName, SignatureFlags)
             .getCertificateFingerprints()
-            .any { it == MIHON_CERTIFICATE_FINGERPRINT }
+            .any { it == YOMU_CERTIFICATE_FINGERPRINT }
     }
 
     fun recordException(throwable: Throwable) {
@@ -65,6 +65,6 @@ object TelemetryConfig {
     }
 }
 
-private val MIHON_PACKAGES = hashSetOf("app.mihon", "app.mihon.debug")
-private const val MIHON_CERTIFICATE_FINGERPRINT =
-    "9A:DD:65:5A:78:E9:6C:4E:C7:A5:3E:F8:9D:CC:B5:57:CB:5D:76:74:89:FA:C5:E7:85:D6:71:A5:A7:5D:4D:A2"
+private val YOMU_PACKAGES = hashSetOf("com.yomu.app", "com.yomu.app.dev")
+private const val YOMU_CERTIFICATE_FINGERPRINT =
+    "12:A6:F0:00:94:EA:3C:F7:6E:FA:77:CA:DF:CB:E2:64:D7:F7:DB:C3:CA:44:6C:23:83:2F:49:4B:11:82:C9:68"

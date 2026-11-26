@@ -2,6 +2,7 @@ package eu.kanade.tachiyomi.data.updater
 
 import dev.zacsweers.metro.Inject
 import eu.kanade.tachiyomi.BuildConfig
+import eu.kanade.tachiyomi.YomuConstants
 import eu.kanade.tachiyomi.util.system.isFossBuildType
 import eu.kanade.tachiyomi.util.system.isNightlyBuildType
 import kotlinx.coroutines.Dispatchers
@@ -36,13 +37,7 @@ class AppUpdateChecker(
     }
 }
 
-val GITHUB_REPO: String by lazy {
-    if (isNightlyBuildType) {
-        "mihonapp/mihon-preview"
-    } else {
-        "mihonapp/mihon"
-    }
-}
+val GITHUB_REPO: String = YomuConstants.GITHUB_REPO
 
 val RELEASE_TAG: String by lazy {
     if (isNightlyBuildType) {
