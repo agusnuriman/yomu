@@ -205,7 +205,9 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <!-- Comick requires native reverse-domain schemes  -->
+                <!-- Comick requires native reverse-domain schemes
+                     Skema tetap app.mihon walau applicationId berubah: Comick mendaftarkan
+                     callback pada skema milik Mihon, menggantinya memutus login Comick. -->
                 <data android:scheme="app.mihon" />
                 <data android:host="comick-auth" />
             </intent-filter>

@@ -35,7 +35,10 @@ android {
     namespace = "eu.kanade.tachiyomi"
 
     defaultConfig {
-        applicationId = "app.mihon"
+        // Paket sendiri, bukan app.mihon. CONTRIBUTING.md upstream meminta fork mengubah
+        // applicationId supaya tidak bentrok: dengan id yang sama, Yomu tidak bisa dipasang
+        // bersebelahan dengan Mihon resmi dan pengguna lama ditolak karena signature berbeda.
+        applicationId = "com.yomu.app"
 
         versionCode = 39
         versionName = "0.21.3"
