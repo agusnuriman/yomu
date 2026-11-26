@@ -193,7 +193,8 @@ class DownloadProvider(
     }
 
     /**
-     * Deletes the given chapter files or directories and returns the paths of the ones still on disk.
+     * Deletes the given chapter files or directories, together with the half-finished download of the
+     * same chapter, and returns the paths of the ones still on disk.
      *
      * A leftover of an older installation belongs to another uid, so this app can't remove it. The
      * outcome is re-checked on disk instead of trusting [UniFile.delete], which reports true on some
@@ -201,11 +202,27 @@ class DownloadProvider(
      */
     fun deleteAndReportRemaining(files: List<UniFile>): List<String> = buildList {
         files.forEach { file ->
+            deleteLeftover(file)?.let { add(it) }
             file.delete()
             if (file.exists()) {
                 add(file.displayablePath)
             }
         }
+    }
+
+    /**
+     * Deletes the leftover of an interrupted download lying next to [file], written under the same name
+     * with [Downloader.TMP_DIR_SUFFIX]: the page directory while pages are being fetched, or the archive
+     * while it is being packed. Nothing else ever removes it, so it holds its space in silence and keeps
+     * the manga directory from being seen as empty.
+     *
+     * @return the path of the leftover when it survives the deletion.
+     */
+    private fun deleteLeftover(file: UniFile): String? {
+        val name = file.name ?: return null
+        val leftover = file.parentFile?.findFile(name + Downloader.TMP_DIR_SUFFIX) ?: return null
+        leftover.delete()
+        return if (leftover.exists()) leftover.displayablePath else null
     }
 
     /**

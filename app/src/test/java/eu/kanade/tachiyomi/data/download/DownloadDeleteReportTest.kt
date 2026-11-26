@@ -5,6 +5,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -56,5 +57,63 @@ class DownloadDeleteReportTest {
         val gone = file("/x/A.cbz", deleted = true, stillThere = false)
         val stuck = file("/x/B.cbz", deleted = false, stillThere = true)
         provider().deleteAndReportRemaining(listOf(gone, stuck)) shouldBe listOf("/x/B.cbz")
+    }
+
+    private fun chapterWithLeftover(fileName: String, path: String, leftover: UniFile?): UniFile {
+        val parent = mockk<UniFile>(relaxed = true)
+        every { parent.findFile(any()) } returns leftover
+        val chapter = mockk<UniFile>(relaxed = true)
+        every { chapter.filePath } returns path
+        every { chapter.name } returns fileName
+        every { chapter.parentFile } returns parent
+        return chapter
+    }
+
+    private fun leftover(path: String, goneOnDelete: Boolean): UniFile {
+        val file = mockk<UniFile>(relaxed = true)
+        every { file.filePath } returns path
+        every { file.exists() } returns !goneOnDelete
+        return file
+    }
+
+    @Test
+    fun `sisa direktori halaman dari unduhan yang berhenti ikut terhapus`() {
+        val tmp = leftover("/x/Ch1_tmp", goneOnDelete = true)
+        val chapter = chapterWithLeftover("Ch1", "/x/Ch1", tmp)
+
+        provider().deleteAndReportRemaining(listOf(chapter)).shouldBeEmpty()
+
+        verify { tmp.delete() }
+    }
+
+    @Test
+    fun `sisa arsip setengah jadi dicari dengan nama bab plus suffix`() {
+        val parent = mockk<UniFile>(relaxed = true)
+        val tmp = leftover("/x/Y.cbz_tmp", goneOnDelete = true)
+        every { parent.findFile("Y.cbz_tmp") } returns tmp
+        val archive = mockk<UniFile>(relaxed = true)
+        every { archive.name } returns "Y.cbz"
+        every { archive.parentFile } returns parent
+
+        provider().deleteAndReportRemaining(listOf(archive)).shouldBeEmpty()
+
+        verify { tmp.delete() }
+    }
+
+    @Test
+    fun `sisa yang tidak bisa dihapus dilaporkan lewat pathnya`() {
+        val tmp = leftover("/x/Ch2_tmp", goneOnDelete = false)
+        val chapter = chapterWithLeftover("Ch2", "/x/Ch2", tmp)
+
+        provider().deleteAndReportRemaining(listOf(chapter)) shouldBe listOf("/x/Ch2_tmp")
+    }
+
+    @Test
+    fun `berkas tanpa nama atau direktori induk tidak membuat error`() {
+        val root = mockk<UniFile>(relaxed = true)
+        every { root.name } returns null
+        every { root.parentFile } returns null
+
+        provider().deleteAndReportRemaining(listOf(root)).shouldBeEmpty()
     }
 }
