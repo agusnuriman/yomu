@@ -45,12 +45,16 @@ class NetworkClientHostTest {
         val recorder = Recorder()
         val host = newHost(newPreferences(), recorder)
 
-        recorder.signatures shouldBe listOf(ClientSignature(-1, false, true))
+        recorder.signatures shouldBe listOf(ClientSignature(false, true))
         (host.client === recorder.clients.single()) shouldBe true
     }
 
+    /**
+     * Provider DNS tidak ikut membangun client: nilainya dibaca saat nama dicari, jadi client yang
+     * lama tetap memakai pilihan terbaru. Membangun ulang di sini hanya membuang client aktif.
+     */
     @Test
-    fun rebuildsWhenDohProviderChanges() {
+    fun doesNotRebuildWhenOnlyTheDnsProviderChanges() {
         val recorder = Recorder()
         val preferences = newPreferences()
         val host = newHost(preferences, recorder)
@@ -58,10 +62,8 @@ class NetworkClientHostTest {
 
         preferences.dohProvider.set(PREF_DOH_CLOUDFLARE)
 
-        recorder.signatures.size shouldBe 2
-        recorder.signatures.last() shouldBe ClientSignature(PREF_DOH_CLOUDFLARE, false, true)
-        (host.client === first) shouldBe false
-        (host.client === recorder.clients.last()) shouldBe true
+        recorder.signatures.size shouldBe 1
+        (host.client === first) shouldBe true
     }
 
     @Test
@@ -74,7 +76,7 @@ class NetworkClientHostTest {
         preferences.verboseLogging.set(true)
 
         recorder.signatures.size shouldBe 2
-        recorder.signatures.last() shouldBe ClientSignature(-1, true, true)
+        recorder.signatures.last() shouldBe ClientSignature(true, true)
         (host.client === first) shouldBe false
     }
 

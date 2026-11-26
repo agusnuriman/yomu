@@ -9,7 +9,12 @@ import okhttp3.OkHttpClient
 
 /**
  * Pemegang OkHttpClient saat ini. Client dibangun ulang hanya kalau salah satu pref yang dibacanya
- * saat build berubah nilai — itu yang membuat DNS aman bisa aktif tanpa membuka ulang aplikasi.
+ * saat build berubah nilai.
+ *
+ * Ini bukan jalur yang bisa diandalkan untuk pilihan DNS aman: jalur notifikasi pref terbukti tidak
+ * pernah mengirim apa pun di perangkat uji, dan pilihan DNS memang tidak lagi lewat sini — ia dibaca
+ * saat nama dicari oleh [PreferenceDns]. Yang dibangun ulang di sini cuma pref yang tertanam di
+ * dalam client.
  *
  * Client lama tidak pernah ditutup: request yang sedang berjalan menyelesaikannya dengan
  * konfigurasi lama, sementara cache, dispatcher, dan connection pool tetap milik [resources] dan
@@ -35,7 +40,6 @@ class NetworkClientHost(
         current = build(resources, signature)
         scope.launch {
             merge(
-                preferences.dohProvider.changes().asBuildSignal(),
                 preferences.verboseLogging.changes().asBuildSignal(),
                 preferences.redactSensitiveHeaders.changes().asBuildSignal(),
             ).collect { rebuildIfChanged() }
@@ -54,4 +58,4 @@ class NetworkClientHost(
  * Aliran perubahan pref dibawa sebagai Flow<Unit>: nilainya tidak pernah dibutuhkan, karena
  * [rebuildIfChanged] membacanya langsung dari pref, dan tiap pref punya tipe yang berbeda.
  */
-private fun <T> Flow<T>.asBuildSignal(): Flow<Unit> = map { Unit }
+private fun <T> Flow<T>.asBuildSignal(): Flow<Unit> = map { }

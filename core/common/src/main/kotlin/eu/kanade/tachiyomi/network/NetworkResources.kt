@@ -25,16 +25,15 @@ class NetworkResources(cacheDir: File) {
 
 /**
  * Pref yang nilainya tertanam di dalam [OkHttpClient] saat ia dibangun. Hanya perubahan pada salah
- * satu dari tiga nilai ini yang pantas membangun client baru.
+ * satu dari dua nilai ini yang pantas membangun client baru. Provider DNS tidak ikut: ia dibaca
+ * pada setiap pencarian nama oleh [PreferenceDns], jadi client lama tidak pernah basi karenanya.
  */
 data class ClientSignature(
-    val dohProvider: Int,
     val verboseLogging: Boolean,
     val redactSensitiveHeaders: Boolean,
 )
 
 fun NetworkPreferences.clientSignature(): ClientSignature = ClientSignature(
-    dohProvider = dohProvider.get(),
     verboseLogging = verboseLogging.get(),
     redactSensitiveHeaders = redactSensitiveHeaders.get(),
 )

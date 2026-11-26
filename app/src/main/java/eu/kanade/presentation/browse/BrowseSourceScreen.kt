@@ -97,8 +97,8 @@ fun BrowseSourceContent(
     // coroutine-nya sendiri, sehingga snackbar hilang sebelum sempat terlihat.
     LaunchedEffect(secureDnsEnabledTick) {
         if (secureDnsEnabledTick == 0) return@LaunchedEffect
-        // Tidak ada aksi "restart": begitu pref berubah, client dibangun ulang di tempat,
-        // jadi yang perlu dilakukan pengguna cuma mencoba lagi. Mematikan aplikasi atas
+        // Tidak ada aksi "restart": pilihan DNS dibaca lagi setiap kali nama dicari, jadi
+        // percobaan ulang sudah memakai provider baru. Mematikan aplikasi atas
         // nama pengguna juga bukan opsi — Android 10+ membatalkan peluncuran activity
         // dari proses yang sudah dimatikan, sehingga aplikasi hilang tanpa kembali.
         snackbarHostState.showSnackbar(secureDnsEnabledMessage)

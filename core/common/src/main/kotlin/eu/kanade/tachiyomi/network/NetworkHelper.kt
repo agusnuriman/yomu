@@ -9,6 +9,7 @@ import eu.kanade.tachiyomi.network.interceptor.UncaughtExceptionInterceptor
 import eu.kanade.tachiyomi.network.interceptor.UserAgentInterceptor
 import kotlinx.coroutines.CoroutineScope
 import mihon.core.metro.AppCoroutineScope
+import okhttp3.Dns
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import java.io.File
@@ -56,30 +57,27 @@ class NetworkHelper(
             builder.addNetworkInterceptor(httpLoggingInterceptor)
         }
 
-        val dohBuilder = when (signature.dohProvider) {
-            PREF_DOH_CLOUDFLARE -> builder.dohCloudflare()
-            PREF_DOH_GOOGLE -> builder.dohGoogle()
-            PREF_DOH_ADGUARD -> builder.dohAdGuard()
-            PREF_DOH_QUAD9 -> builder.dohQuad9()
-            PREF_DOH_ALIDNS -> builder.dohAliDNS()
-            PREF_DOH_DNSPOD -> builder.dohDNSPod()
-            PREF_DOH_360 -> builder.doh360()
-            PREF_DOH_QUAD101 -> builder.dohQuad101()
-            PREF_DOH_MULLVAD -> builder.dohMullvad()
-            PREF_DOH_CONTROLD -> builder.dohControlD()
-            PREF_DOH_NJALLA -> builder.dohNajalla()
-            PREF_DOH_SHECAN -> builder.dohShecan()
-            else -> builder
-        }
+        // Snapshot sebelum dns() dipasang: client transport DoH harus bisa menanyakan alamat
+        // server DoH-nya lewat DNS sistem. Kalau dns() sudah terpasang saat snapshot ini diambil,
+        // pertanyaan itu dijawab oleh dirinya sendiri dan pencarian nama tidak pernah selesai.
+        val dnsBootstrap = builder.build()
+        builder.dns(
+            PreferenceDns(preferences.dohProvider) { provider ->
+                dohResolver(provider, dnsBootstrap) ?: Dns.SYSTEM
+            },
+        )
 
-        return dohBuilder
+        return builder
             .addInterceptor(
                 CloudflareInterceptor(context, cookieJar, scope, ::defaultUserAgentProvider),
             )
             .build()
     }
 
-    /** Client yang dipakai seluruh app. Ikut dibangun ulang saat pref yang dibacanya berubah. */
+    /**
+     * Client yang dipakai seluruh app. Ikut dibangun ulang saat pref yang tertanam di dalamnya
+     * berubah; pilihan DNS aman tidak perlu menunggu itu karena dibaca saat nama dicari.
+     */
     val client: OkHttpClient get() = host.client
 
     /**
