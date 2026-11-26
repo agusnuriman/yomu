@@ -20,6 +20,7 @@ import eu.kanade.tachiyomi.util.storage.getUriCompat
 import logcat.LogPriority
 import okio.IOException
 import tachiyomi.core.common.i18n.stringResource
+import tachiyomi.core.common.storage.STORAGE_DIR_NAME
 import tachiyomi.core.common.util.system.ImageUtil
 import tachiyomi.core.common.util.system.logcat
 import tachiyomi.i18n.MR
@@ -82,7 +83,7 @@ class ImageSaver(
         val imageLocation = (image.location as Location.Pictures).relativePath
         val relativePath = listOf(
             if (isMimeTypeSupported) Environment.DIRECTORY_PICTURES else Environment.DIRECTORY_DOCUMENTS,
-            context.stringResource(MR.strings.app_name),
+            STORAGE_DIR_NAME,
             imageLocation,
         ).joinToString(File.separator)
 
@@ -197,7 +198,7 @@ sealed interface Location {
             is Pictures -> {
                 val file = File(
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                    context.stringResource(MR.strings.app_name),
+                    STORAGE_DIR_NAME,
                 )
                 if (relativePath.isNotEmpty()) {
                     return File(

@@ -7,9 +7,14 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
-import tachiyomi.core.common.i18n.stringResource
-import tachiyomi.i18n.MR
 import java.io.File
+
+/**
+ * Nama folder di disk. Sengaja tidak mengikuti string app_name: mengubahnya memindahkan akar
+ * unduhan dan folder simpan gambar, sehingga unduhan lama tidak terlihat lagi oleh aplikasi.
+ * Migrasi data harus eksplisit, bukan efek samping dari ganti nama tampilan.
+ */
+const val STORAGE_DIR_NAME = "Mihon"
 
 @Inject
 @SingleIn(AppScope::class)
@@ -19,12 +24,11 @@ class AndroidStorageFolderProvider(
 ) : FolderProvider {
 
     override fun directory(): File {
-        val appName = context.stringResource(MR.strings.app_name)
         val publicDir = File(
-            Environment.getExternalStorageDirectory().absolutePath + File.separator + appName,
+            Environment.getExternalStorageDirectory().absolutePath + File.separator + STORAGE_DIR_NAME,
         )
         // Pola yang sama dengan CoverCache: dir eksternal privat, internal kalau eksternal tak ada.
-        val privateDir = context.getExternalFilesDir(appName) ?: File(context.filesDir, appName)
+        val privateDir = context.getExternalFilesDir(STORAGE_DIR_NAME) ?: File(context.filesDir, STORAGE_DIR_NAME)
         return pickBaseDir(publicDir, privateDir)
     }
 
