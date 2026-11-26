@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import eu.kanade.presentation.theme.TachiyomiPreviewTheme
+import eu.kanade.presentation.theme.YomuPreviewTheme
 import mihon.icons.materialsymbols.MaterialSymbols
 import mihon.icons.materialsymbols.rounded.Folder
 import tachiyomi.presentation.core.components.Badge
@@ -50,7 +50,7 @@ internal fun LanguageBadge(
 @PreviewLightDark
 @Composable
 private fun BadgePreview() {
-    TachiyomiPreviewTheme {
+    YomuPreviewTheme {
         Column {
             DownloadsBadge(count = 10)
             UnreadBadge(count = 10)

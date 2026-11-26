@@ -13,7 +13,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.sp
-import eu.kanade.presentation.theme.TachiyomiPreviewTheme
+import eu.kanade.presentation.theme.YomuPreviewTheme
 
 @Composable
 fun ReaderPageIndicator(
@@ -54,7 +54,7 @@ fun ReaderPageIndicator(
 @PreviewLightDark
 @Composable
 private fun ReaderPageIndicatorPreview() {
-    TachiyomiPreviewTheme {
+    YomuPreviewTheme {
         Surface {
             ReaderPageIndicator(currentPage = 10, totalPages = 69)
         }

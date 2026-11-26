@@ -13,7 +13,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AbstractComposeView
 import eu.kanade.presentation.reader.ChapterTransition
-import eu.kanade.presentation.theme.TachiyomiTheme
+import eu.kanade.presentation.theme.YomuTheme
 import eu.kanade.tachiyomi.data.download.DownloadManager
 import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.ui.reader.model.ChapterTransition
@@ -68,7 +68,7 @@ class ReaderTransitionView @JvmOverloads constructor(context: Context, attrs: At
             val goingToChapterDownloaded by produceState(it.goingToChapterDownloaded, it) {
                 it.isGoingToChapterOnDisk?.let { isOnDisk -> value = isOnDisk() }
             }
-            TachiyomiTheme {
+            YomuTheme {
                 CompositionLocalProvider(
                     LocalTextStyle provides MaterialTheme.typography.bodySmall,
                     LocalContentColor provides MaterialTheme.colorScheme.onBackground,

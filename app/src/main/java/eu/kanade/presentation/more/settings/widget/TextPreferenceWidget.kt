@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import eu.kanade.presentation.theme.TachiyomiPreviewTheme
+import eu.kanade.presentation.theme.YomuPreviewTheme
 import mihon.icons.materialsymbols.MaterialSymbols
 import mihon.icons.materialsymbols.rounded.Preview
 import tachiyomi.presentation.core.util.secondaryItemAlpha
@@ -62,7 +62,7 @@ fun TextPreferenceWidget(
 @PreviewLightDark
 @Composable
 private fun TextPreferenceWidgetPreview() {
-    TachiyomiPreviewTheme {
+    YomuPreviewTheme {
         Surface {
             Column {
                 TextPreferenceWidget(

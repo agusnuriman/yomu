@@ -43,7 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import eu.kanade.presentation.theme.TachiyomiPreviewTheme
+import eu.kanade.presentation.theme.YomuPreviewTheme
 import eu.kanade.presentation.util.isTabletUi
 import mihon.icons.materialsymbols.MaterialSymbols
 import mihon.icons.materialsymbols.rounded.SkipNext
@@ -322,7 +322,7 @@ fun VerticalChapterNavigator(
 @Composable
 private fun ChapterNavigatorPreview() {
     var currentPage by remember { mutableIntStateOf(1) }
-    TachiyomiPreviewTheme {
+    YomuPreviewTheme {
         ChapterNavigator(
             type = ChapterNavigatorType.VERTICAL_RIGHT,
             onNextChapter = {},

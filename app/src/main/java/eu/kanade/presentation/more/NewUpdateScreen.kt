@@ -19,7 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import eu.kanade.presentation.manga.components.MarkdownRender
-import eu.kanade.presentation.theme.TachiyomiPreviewTheme
+import eu.kanade.presentation.theme.YomuPreviewTheme
 import eu.kanade.tachiyomi.ui.more.NewUpdateScreenModel
 import mihon.icons.materialsymbols.MaterialSymbols
 import mihon.icons.materialsymbols.automirroredrounded.OpenInNew
@@ -118,7 +118,7 @@ fun NewUpdateScreen(
 @PreviewLightDark
 @Composable
 private fun NewUpdateScreenPreview() {
-    TachiyomiPreviewTheme {
+    YomuPreviewTheme {
         NewUpdateScreen(
             versionName = "v0.99.9",
             changelogInfo = """

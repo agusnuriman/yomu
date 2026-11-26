@@ -20,7 +20,7 @@ import eu.kanade.presentation.components.AppBarTitle
 import eu.kanade.presentation.components.SearchToolbar
 import eu.kanade.presentation.components.relativeDateText
 import eu.kanade.presentation.history.components.HistoryItem
-import eu.kanade.presentation.theme.TachiyomiPreviewTheme
+import eu.kanade.presentation.theme.YomuPreviewTheme
 import eu.kanade.presentation.util.rememberIs24HourSystem
 import eu.kanade.tachiyomi.ui.history.HistoryViewModel
 import kotlinx.datetime.LocalDate
@@ -163,7 +163,7 @@ internal fun HistoryScreenPreviews(
     @PreviewParameter(HistoryviewModelStateProvider::class)
     historyState: HistoryViewModel.State,
 ) {
-    TachiyomiPreviewTheme {
+    YomuPreviewTheme {
         HistoryScreen(
             state = historyState,
             snackbarHostState = SnackbarHostState(),

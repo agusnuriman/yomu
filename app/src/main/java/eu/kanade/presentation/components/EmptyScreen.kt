@@ -3,7 +3,7 @@ package eu.kanade.presentation.components
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import eu.kanade.presentation.theme.TachiyomiPreviewTheme
+import eu.kanade.presentation.theme.YomuPreviewTheme
 import mihon.icons.materialsymbols.MaterialSymbols
 import mihon.icons.materialsymbols.automirroredrounded.Help
 import mihon.icons.materialsymbols.rounded.Refresh
@@ -14,7 +14,7 @@ import tachiyomi.presentation.core.screens.EmptyScreenAction
 @PreviewLightDark
 @Composable
 private fun NoActionPreview() {
-    TachiyomiPreviewTheme {
+    YomuPreviewTheme {
         Surface {
             EmptyScreen(
                 stringRes = MR.strings.empty_screen,
@@ -26,7 +26,7 @@ private fun NoActionPreview() {
 @PreviewLightDark
 @Composable
 private fun WithActionPreview() {
-    TachiyomiPreviewTheme {
+    YomuPreviewTheme {
         Surface {
             EmptyScreen(
                 stringRes = MR.strings.empty_screen,

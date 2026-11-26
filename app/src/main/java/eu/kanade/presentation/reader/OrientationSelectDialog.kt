@@ -16,7 +16,7 @@ import dev.icerock.moko.resources.StringResource
 import eu.kanade.domain.manga.model.readerOrientation
 import eu.kanade.presentation.components.AdaptiveSheet
 import eu.kanade.presentation.reader.components.ModeSelectionDialog
-import eu.kanade.presentation.theme.TachiyomiPreviewTheme
+import eu.kanade.presentation.theme.YomuPreviewTheme
 import eu.kanade.tachiyomi.ui.reader.setting.ReaderOrientation
 import eu.kanade.tachiyomi.ui.reader.setting.ReaderSettingsViewModel
 import tachiyomi.i18n.MR
@@ -81,7 +81,7 @@ private fun DialogContent(
 @PreviewLightDark
 @Composable
 private fun DialogContentPreview() {
-    TachiyomiPreviewTheme {
+    YomuPreviewTheme {
         Surface {
             Column {
                 DialogContent(

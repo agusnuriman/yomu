@@ -25,10 +25,10 @@ internal class MonetColorScheme(context: Context) : BaseColorScheme() {
         if (seed != null) {
             MonetCompatColorScheme(Color(seed))
         } else {
-            TachiyomiColorScheme
+            YomuColorScheme
         }
     } else {
-        TachiyomiColorScheme
+        YomuColorScheme
     }
 
     override val darkScheme

@@ -10,7 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import eu.kanade.presentation.theme.TachiyomiPreviewTheme
+import eu.kanade.presentation.theme.YomuPreviewTheme
 import mihon.icons.materialsymbols.MaterialSymbols
 import mihon.icons.materialsymbols.rounded.Info
 import tachiyomi.i18n.MR
@@ -43,7 +43,7 @@ internal fun InfoWidget(text: String) {
 @PreviewLightDark
 @Composable
 private fun InfoWidgetPreview() {
-    TachiyomiPreviewTheme {
+    YomuPreviewTheme {
         Surface {
             InfoWidget(text = stringResource(MR.strings.download_ahead_info))
         }

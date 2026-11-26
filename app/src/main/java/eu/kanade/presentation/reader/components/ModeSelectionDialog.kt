@@ -17,7 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import eu.kanade.presentation.theme.TachiyomiPreviewTheme
+import eu.kanade.presentation.theme.YomuPreviewTheme
 import mihon.icons.materialsymbols.MaterialSymbols
 import mihon.icons.materialsymbols.rounded.Check
 import tachiyomi.i18n.MR
@@ -70,7 +70,7 @@ fun ModeSelectionDialog(
 @PreviewLightDark
 @Composable
 private fun Preview() {
-    TachiyomiPreviewTheme {
+    YomuPreviewTheme {
         Surface {
             Column {
                 ModeSelectionDialog(

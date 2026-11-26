@@ -32,7 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import dev.icerock.moko.resources.StringResource
-import eu.kanade.presentation.theme.TachiyomiPreviewTheme
+import eu.kanade.presentation.theme.YomuPreviewTheme
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.ScrollbarLazyColumn
 import tachiyomi.presentation.core.components.WheelNumberPicker
@@ -224,7 +224,7 @@ private fun BaseSelector(
 @PreviewLightDark
 @Composable
 private fun TrackStatusSelectorPreviews() {
-    TachiyomiPreviewTheme {
+    YomuPreviewTheme {
         Surface {
             TrackStatusSelector(
                 selection = 1,

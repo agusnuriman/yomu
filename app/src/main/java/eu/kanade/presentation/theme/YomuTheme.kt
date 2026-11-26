@@ -17,24 +17,24 @@ import eu.kanade.presentation.theme.colorscheme.MonetColorScheme
 import eu.kanade.presentation.theme.colorscheme.MonochromeColorScheme
 import eu.kanade.presentation.theme.colorscheme.NordColorScheme
 import eu.kanade.presentation.theme.colorscheme.StrawberryColorScheme
-import eu.kanade.presentation.theme.colorscheme.TachiyomiColorScheme
 import eu.kanade.presentation.theme.colorscheme.TakoColorScheme
 import eu.kanade.presentation.theme.colorscheme.TealTurqoiseColorScheme
 import eu.kanade.presentation.theme.colorscheme.TidalWaveColorScheme
 import eu.kanade.presentation.theme.colorscheme.TokyoNightColorScheme
 import eu.kanade.presentation.theme.colorscheme.YinYangColorScheme
+import eu.kanade.presentation.theme.colorscheme.YomuColorScheme
 import eu.kanade.presentation.theme.colorscheme.YotsubaColorScheme
 import mihon.app.di.appGraph
 
 @Composable
-fun TachiyomiTheme(
+fun YomuTheme(
     appTheme: AppTheme? = null,
     amoled: Boolean? = null,
     content: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
     val uiPreferences = remember { context.appGraph.uiPreferences }
-    BaseTachiyomiTheme(
+    BaseYomuTheme(
         appTheme = appTheme ?: uiPreferences.appTheme.get(),
         isAmoled = amoled ?: uiPreferences.themeDarkAmoled.get(),
         content = content,
@@ -42,14 +42,14 @@ fun TachiyomiTheme(
 }
 
 @Composable
-fun TachiyomiPreviewTheme(
+fun YomuPreviewTheme(
     appTheme: AppTheme = AppTheme.DEFAULT,
     isAmoled: Boolean = false,
     content: @Composable () -> Unit,
-) = BaseTachiyomiTheme(appTheme, isAmoled, content)
+) = BaseYomuTheme(appTheme, isAmoled, content)
 
 @Composable
-private fun BaseTachiyomiTheme(
+private fun BaseYomuTheme(
     appTheme: AppTheme,
     isAmoled: Boolean,
     content: @Composable () -> Unit,
@@ -78,7 +78,7 @@ private fun getThemeColorScheme(
     val colorScheme = if (appTheme == AppTheme.MONET) {
         MonetColorScheme(context)
     } else {
-        colorSchemes.getOrDefault(appTheme, TachiyomiColorScheme)
+        colorSchemes.getOrDefault(appTheme, YomuColorScheme)
     }
     return colorScheme.getColorScheme(
         isDark = isDark,
@@ -88,7 +88,7 @@ private fun getThemeColorScheme(
 }
 
 private val colorSchemes: Map<AppTheme, BaseColorScheme> = mapOf(
-    AppTheme.DEFAULT to TachiyomiColorScheme,
+    AppTheme.DEFAULT to YomuColorScheme,
     AppTheme.CATPPUCCIN to CatppuccinColorScheme,
     AppTheme.TOKYONIGHT to TokyoNightColorScheme,
     AppTheme.GREEN_APPLE to GreenAppleColorScheme,
