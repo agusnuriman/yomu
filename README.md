@@ -1,55 +1,52 @@
 <div align="center">
 
 <a href="https://github.com/agusnuriman/yomu">
-    <img src="./.github/assets/logo.png" alt="Logo Yomu" title="Logo Yomu" width="80"/>
+<img src="./.github/assets/logo.png" alt="Yomu Logo" title="Yomu Logo" width="80"/>
 </a>
 
 # Yomu
 
-### Pembaca manga untuk Android
+### Manga Reader for Android
 
-Baca manga, webtoon, komik, dan lainnya di perangkat Android. Yomu adalah
-kelanjutan (fork) dari [Mihon](https://github.com/mihonapp/mihon) — yang
-berlanjut dari [Tachiyomi](https://github.com/tachiyomiorg).
+Read manga, webtoons, comics, and more on your Android device. Yomu is a fork of [Mihon](https://github.com/mihonapp/mihon) — which is a continuation of [Tachiyomi](https://github.com/tachiyomiorg).
 
-[![Rilis](https://img.shields.io/github/v/release/agusnuriman/yomu?label=rilis&labelColor=27303D&color=0877d2)](https://github.com/agusnuriman/yomu/releases/latest)
+[![Release](https://img.shields.io/github/v/release/agusnuriman/yomu?label=release&labelColor=27303D&color=0877d2)](https://github.com/agusnuriman/yomu/releases/latest)
 [![License: Apache-2.0](https://img.shields.io/github/license/agusnuriman/yomu?labelColor=27303D&color=0877d2)](/LICENSE)
 
-## Unduh
+## Download
 
-Unduh APK terbaru di [halaman Releases](https://github.com/agusnuriman/yomu/releases/latest).
+Download the latest APK at the [Releases page](https://github.com/agusnuriman/yomu/releases/latest).
 
-Tersedia varian `universal` untuk semua perangkat, atau pilih sesuai arsitektur
-CPU (umumnya `arm64-v8a` untuk ponsel modern).
+A universal version is available for all devices, or choose based on your CPU architecture (usually arm64-v8a for modern phones).
 
-*Butuh Android 8.0 atau lebih baru.*
+*Requires Android 8.0 or later.*
 
-## Fitur
+## Features
 
 <div align="left">
 
-* Membaca konten lokal.
-* Pembaca yang bisa diatur: arah baca, mode tampilan, dan pengaturan lainnya.
-* Dukungan pelacak baca: [MangaBaka](https://mangabaka.org), [MyAnimeList](https://myanimelist.net/), [AniList](https://anilist.co/), [Kitsu](https://kitsu.app/), [MangaUpdates](https://mangaupdates.com), [Shikimori](https://shikimori.one), [Bangumi](https://bgm.tv/), dan [Hikka](https://hikka.io/).
-* Kategori untuk merapikan pustaka.
-* Tema terang dan gelap.
-* Pembaruan pustaka terjadwal untuk bab baru.
-* Cadangan lokal atau ke layanan cloud pilihan Anda.
-* Dan lainnya...
+* Read local content.
+* Customizable reader: reading direction, display mode, and other settings.
+* Supports reader trackers: [MangaBaka](https://mangabaka.org), [MyAnimeList](https://myanimelist.net/), [AniList](https://anilist.co/), [Kitsu](https://kitsu.app/), [MangaUpdates](https://mangaupdates.com), [Shikimori](https://shikimori.one), [Bangumi](https://bgm.tv/), and [Hikka](https://hikka.io/).
+* Categories to organize your library.
+* Light and dark themes.
+* Scheduled library updates for new chapters.
+* Backup locally or to your preferred cloud service.
+* And more...
 
 </div>
 
-## Kredit
+## Credits
 
-Yomu adalah fork dari [Mihon](https://github.com/mihonapp/mihon). Terima kasih
-kepada seluruh kontributor Mihon dan Tachiyomi.
+Yomu is a fork of [Mihon](https://github.com/mihonapp/mihon). Thanks
+to all Mihon and Tachiyomi contributors.
 
 ### Disclaimer
 
-Pengembang aplikasi ini tidak berafiliasi dengan penyedia konten mana pun, dan
-aplikasi ini tidak menghosting konten apa pun.
+The developers of this app are not affiliated with any content providers, and
+this app does not host any content.
 
-### Lisensi
+### License
 
 <pre>
 Copyright © 2015 Javier Tomás
@@ -70,3 +67,5 @@ limitations under the License.
 </pre>
 
 </div>
+
+ 
