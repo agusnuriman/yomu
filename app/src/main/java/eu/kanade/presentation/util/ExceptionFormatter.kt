@@ -5,6 +5,7 @@ import eu.kanade.tachiyomi.network.FailureText
 import eu.kanade.tachiyomi.network.HttpException
 import eu.kanade.tachiyomi.network.chooseFailureText
 import eu.kanade.tachiyomi.network.dnsFailureHost
+import eu.kanade.tachiyomi.network.isUnreadableFileFailure
 import eu.kanade.tachiyomi.util.system.isOnline
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.data.source.NoResultsException
@@ -24,6 +25,12 @@ val Throwable.formattedMessage: String
                 } else {
                     context.stringResource(MR.strings.exception_unknown_host, message ?: "")
                 }
+            }
+
+            // Berkas unduhan milik instalasi lama tidak bisa dibaca uid sekarang; pesan sistemnya
+            // bahasa Inggris dan mentah, jadi diganti penjelasan yang bisa ditindaklanjuti.
+            is IOException -> if (isUnreadableFileFailure(message)) {
+                return context.stringResource(MR.strings.exception_unreadable_file)
             }
 
             is NoResultsException -> return context.stringResource(MR.strings.no_results_found)

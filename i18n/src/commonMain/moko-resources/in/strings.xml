@@ -699,6 +699,7 @@
     <string name="exception_http">HTTP %d, periksa situs web di WebView</string>
     <string name="exception_unknown_host">Tidak dapat mencapai %s</string>
     <string name="exception_dns_blocked">Tidak bisa menghubungi %s. Alamatnya mungkin dibelokkan penyedia internetmu, atau memang tidak bisa diterjemahkan.</string>
+    <string name="exception_unreadable_file">Berkas unduhannya tidak bisa dibaca, kemungkinan sisa instalasi sebelumnya. Hapus lalu unduh ulang.</string>
     <string name="action_use_secure_dns">Pakai DNS aman</string>
     <string name="secure_dns_group">DNS aman</string>
     <string name="secure_dns_dialog_title">Pakai DNS aman?</string>

@@ -89,6 +89,16 @@ fun isNetworkLayerFailure(message: String?): Boolean =
     message != null && networkLayerRegex.containsMatchIn(message)
 
 /**
+ * Bentuk pesan errno Android saat sistem menolak membaca atau menulis berkas: sisa unduhan
+ * instalasi lama (uid berbeda) atau folder publik yang tidak diizinkan scoped storage.
+ * Dipakai supaya pengguna diberi tahu berkasnya tak terbaca, bukan mentahan "open failed: EACCES".
+ */
+private val filePermissionRegex = Regex("\\bE(ACCES|PERM)\\s*\\(")
+
+fun isUnreadableFileFailure(message: String?): Boolean =
+    message != null && filePermissionRegex.containsMatchIn(message)
+
+/**
  * Pilih penjelasan untuk kegagalan IOException: [FailureText.Offline] saat perangkat tidak
  * punya jalur keluar, [FailureText.DnsBlocked] saat alamat DNS mencurigakan, dan
  * [FailureText.Raw] untuk sisanya agar pesan aslinya tetap terbaca.
