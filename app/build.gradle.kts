@@ -46,30 +46,34 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    if (System.getenv("MIHON_GITHUB_RELEASE").toBoolean()) {
-        signingConfigs {
-            named("debug") {
-                storeFile = file(System.getenv("storeFile"))
-                storePassword = System.getenv("storePassword")
-                keyAlias = System.getenv("keyAlias")
-                keyPassword = System.getenv("keyPassword")
+    // Key rilis dipisah dari config "debug". Upstream menaruh key rilis di config "debug",
+    // akibatnya build debug ikut di-sign ulang dan aplikasi yang sudah terpasang tidak bisa
+    // di-update tanpa uninstall (data pengguna hilang).
+    val releaseKeystore: Properties? = if (System.getenv("MIHON_GITHUB_RELEASE").toBoolean()) {
+        Properties().apply {
+            listOf("storeFile", "storePassword", "keyAlias", "keyPassword").forEach { key ->
+                setProperty(key, checkNotNull(System.getenv(key)) { "$key env is required" })
             }
         }
     } else if (keystorePropertiesFile.exists()) {
-        val keystoreProperties = FileInputStream(keystorePropertiesFile).use { Properties().apply { load(it) } }
+        FileInputStream(keystorePropertiesFile).use { Properties().apply { load(it) } }
+    } else {
+        null
+    }
 
+    if (releaseKeystore != null) {
         signingConfigs {
-            named("debug") {
-                storeFile = file(keystoreProperties.getProperty("storeFile"))
-                storePassword = keystoreProperties.getProperty("storePassword")
-                keyAlias = keystoreProperties.getProperty("keyAlias")
-                keyPassword = keystoreProperties.getProperty("keyPassword")
+            create("release") {
+                storeFile = file(releaseKeystore.getProperty("storeFile"))
+                storePassword = releaseKeystore.getProperty("storePassword")
+                keyAlias = releaseKeystore.getProperty("keyAlias")
+                keyPassword = releaseKeystore.getProperty("keyPassword")
             }
         }
     }
 
     buildTypes {
-        val debug = getByName("debug") {
+        getByName("debug") {
             applicationIdSuffix = ".dev"
             isPseudoLocalesEnabled = true
         }
@@ -77,7 +81,10 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
 
-            signingConfig = debug.signingConfig
+            // Tanpa key rilis hasil build tidak ter-sign (apk *-release-unsigned). Fallback ke
+            // debug key Android berbahaya untuk distribusi publik: siapa pun bisa membuat APK
+            // dengan signature yang sama dan mengirimnya sebagai "update".
+            signingConfig = signingConfigs.findByName("release")
 
             isProfileable = true
 
