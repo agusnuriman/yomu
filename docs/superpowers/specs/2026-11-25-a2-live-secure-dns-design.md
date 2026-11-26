@@ -177,3 +177,42 @@ diam-diam.
   bukan per request.
 - Tidak ada seam Compose/Robolectric di repo ini, jadi jalur kolektor di `NetworkHelper`
   (`merge(...)`) dibuktikan di perangkat, bukan oleh unit test.
+
+## Amandemen (ditulis setelah bukti perangkat, 25 Nov)
+
+Desain di atas menaruh pilihan DNS aman di jalur notifikasi pref: perubahan `dohProvider` memicu
+rebuild. Bukti perangkat membatalkan asumsi itu, jadi implementasi final membaca pref DNS pada saat
+nama dicari, bukan pada saat client dibangun. Butir-butir di bawah menimpa bagian yang bertentangan.
+
+- **Root cause.** `SharedPreferences.OnSharedPreferenceChangeListener` tidak pernah dipanggil di
+  perangkat uji (MuMu, Android 12 x86_64). Dalam satu sesi boot tercatat 132 registrasi listener pada
+  instance `SharedPreferences` yang sama (`sp=180083126`), 4 penulisan pref (`set key=...`), dan 0
+  pemanggilan listener (`fired=0`). Listener kuat yang digenggam kode diagnostik pun tidak dipanggil,
+  jadi penyebabnya perilaku platform, bukan cacat pada aliran `changes()`. Bukti:
+  `.superpowers/sdd/2026-11-25-a2-live-secure-dns/task6-diag-probe.log`.
+- **Akibat pada bentuk.** `dohProvider` keluar dari `ClientSignature` — sisanya `verboseLogging` dan
+  `redactSensitiveHeaders` — dan keluar dari `merge(...)` di `NetworkClientHost`. Kalimat
+  "`ClientSignature` memuat tiga field" di §Verifikasi dibaca menjadi dua field.
+- **Penggantinya.** `PreferenceDns : okhttp3.Dns` dipasang sekali per client; `lookup()` membaca
+  `dohProvider.get()` setiap pencarian nama dan menyimpan satu resolver per provider. Janji A2 tidak
+  lagi bersandar pada notifikasi, sehingga pilihan pengguna berlaku pada koneksi berikutnya meskipun
+  ada konsumen yang masih menggenggam client lama.
+- **Bootstrap.** `DohProviders.kt` berubah dari dua belas `OkHttpClient.Builder.dohX()` menjadi tabel
+  endpoint plus `dohResolver(provider, bootstrap)`. Client transport DoH harus snapshot builder
+  **sebelum** `dns()` dipasang; kalau dipasang sesudahnya, pertanyaan DNS untuk server DoH dijawab
+  oleh `PreferenceDns` itu sendiri dan pencarian nama tidak pernah selesai.
+- **Residu §Risiko butir bootstrap tidak berlaku lagi.** Dulu `DnsOverHttps` membangun client
+  transportnya sendiri sehingga tidak berbagi pool. Sekarang transportnya adalah client yang dibangun
+  dari builder yang sama, jadi ia ikut memakai cache, dispatcher, dan connection pool milik
+  `NetworkResources`.
+- **Bukti perangkat.** pid tidak berubah selama seluruh uji. `logcat -s OkHttp` menampilkan
+  `--> GET https://cloudflare-dns.com/dns-query?dns=` ketika DNS aman diaktifkan dari tombol error,
+  dan `--> GET https://dns.google/dns-query?dns=` ketika provider diganti dari
+  Pengaturan → Lanjutan → DNS aman; masing-masing disusul `<-- 200 https://api.mangadex.org/...`.
+  Berkas: `evidence/a1-37-live-dns-loaded.png`, `evidence/a1-38-live-covers.png`,
+  `evidence/a1-39-settings-dns-cloudflare.png`, `evidence/a1-40-settings-dns-google-coldstart.png`,
+  `evidence/task6c-live.log`. Setelah uji, pref dikembalikan ke `doh_provider=-1` lewat dialog yang
+  sama dengan pid yang sama.
+- **Jalur kolektor tetap ada tapi tidak lagi menentukan DNS.** Dua pref build-time masih lewat
+  `merge(...)`, dan itu tetap dibuktikan di perangkat; pilihan DNS sekarang punya seam JVM sendiri
+  (`PreferenceDnsTest`), jadi klaim "tidak ada seam" hanya tinggal untuk dua pref tersebut.
