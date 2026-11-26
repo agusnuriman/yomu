@@ -10,6 +10,24 @@
 
 **Spec:** `docs/superpowers/specs/2026-11-25-a2-live-secure-dns-design.md`
 
+## Status (25 Nov, setelah branch dikerjakan)
+
+Rencana ini dijalankan sampai selesai dengan satu penyimpangan besar yang tercatat di §Amandemen
+spec: bukti perangkat menunjukkan listener perubahan pref tidak pernah dipanggil, jadi pilihan DNS
+aman tidak boleh lagi bersandar pada jalur itu. Butir di bawah menimpa langkah yang bertentangan —
+menjalankan langkah lama akan membatalkan perbaikan yang sudah dikirim.
+
+- `ClientSignature` berisi dua field (`verboseLogging`, `redactSensitiveHeaders`), bukan tiga.
+- `merge(...)` di `NetworkClientHost` tidak mengikutkan `preferences.dohProvider.changes()`; langkah
+  Task 2 yang menulis tiga aliran itu dan tes `rebuildsWhenDohProviderChanges()` dibatalkan. Provider
+  DNS dibaca setiap pencarian nama oleh `PreferenceDns`.
+- `signature.dohProvider` dan `OkHttpClient.Builder.dohX()` tidak ada lagi: `DohProviders.kt` menjadi
+  tabel endpoint plus `dohResolver(provider, bootstrap)`, dengan client transport DoH sebagai snapshot
+  builder sebelum `dns()` dipasang.
+- Getter `NetworkClientHost.client` memeriksa pref sendiri saat diambil, jadi perubahan pref
+  build-time (verbose logging, redaksi header) berlaku walau notifikasi tidak pernah datang; kolektor
+  tetap ada hanya untuk mempercepat rebuild di platform yang listenernya hidup.
+
 ## Global Constraints
 
 - Semua kode baru di repo `D:\Projects\Yomu\app`, modul `:core:common` kecuali disebut lain.
