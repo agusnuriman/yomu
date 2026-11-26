@@ -501,7 +501,11 @@ class MangaViewModel(
      */
     private fun deleteDownloads() {
         val state = successState ?: return
-        appScope.launch { downloadManager.deleteManga(state.manga, state.source) }
+        appScope.launch {
+            if (downloadManager.deleteManga(state.manga, state.source) > 0) {
+                notifyUndeletableDownloads()
+            }
+        }
     }
 
     /**
@@ -861,10 +865,25 @@ class MangaViewModel(
         // Outlives the screen, which the delete dialog usually closes along with
         appScope.launch {
             try {
-                downloadManager.deleteChapters(chapters, state.manga, state.source)
+                if (downloadManager.deleteChapters(chapters, state.manga, state.source) > 0) {
+                    notifyUndeletableDownloads()
+                }
             } catch (e: Exception) {
                 logcat(LogPriority.ERROR, e)
             }
+        }
+    }
+
+    /**
+     * Leftovers of an older installation can't be deleted by this app. Say so instead of leaving
+     * the user with a delete button that appears to do nothing.
+     */
+    private fun notifyUndeletableDownloads() {
+        viewModelScope.launch {
+            snackbarHostState.showSnackbar(
+                message = context.stringResource(MR.strings.download_delete_failed),
+                withDismissAction = true,
+            )
         }
     }
 

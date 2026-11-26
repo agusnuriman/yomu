@@ -265,26 +265,31 @@ class DownloadManager(
      * @param chapters the list of chapters to delete.
      * @param manga the manga of the chapters.
      * @param source the source of the chapters.
+     * @return how many downloaded files are still on disk afterwards, such as the leftovers of an
+     * older installation, whose uid stops this app from deleting them.
      */
-    suspend fun deleteChapters(chapters: List<Chapter>, manga: Manga, source: Source) {
+    suspend fun deleteChapters(chapters: List<Chapter>, manga: Manga, source: Source): Int =
         withContext(Dispatchers.IO) {
             val filteredChapters = getChaptersToDelete(chapters, manga)
             if (filteredChapters.isEmpty()) {
-                return@withContext
+                return@withContext 0
             }
 
             downloader.dequeue(filteredChapters)
 
             val (mangaDir, chapterDirs) = provider.findChapterDirs(filteredChapters, manga, source)
-            chapterDirs.forEach { it.delete() }
+            val remaining = provider.deleteAndReportRemaining(chapterDirs)
+            if (remaining.isNotEmpty()) {
+                logcat(LogPriority.ERROR) { "Downloads still on disk after delete: $remaining" }
+            }
             cache.removeChapters(filteredChapters, manga)
 
             // Delete manga directory if empty
             if (mangaDir?.listFiles()?.isEmpty() == true) {
                 deleteManga(manga, source, removeQueued = false)
             }
+            remaining.size
         }
-    }
 
     /**
      * Deletes the directory of a downloaded manga.
@@ -292,23 +297,30 @@ class DownloadManager(
      * @param manga the manga to delete.
      * @param source the source of the manga.
      * @param removeQueued whether to also remove queued downloads.
+     * @return how many files are still on disk afterwards.
      */
-    suspend fun deleteManga(manga: Manga, source: Source, removeQueued: Boolean = true) {
+    suspend fun deleteManga(manga: Manga, source: Source, removeQueued: Boolean = true): Int =
         withContext(Dispatchers.IO) {
             if (removeQueued) {
                 downloader.removeFromQueue(manga)
             }
-            provider.findMangaDir(manga.title, source)?.delete()
+            val remaining = provider.deleteAndReportRemaining(
+                listOfNotNull(provider.findMangaDir(manga.title, source)),
+            )
+            if (remaining.isNotEmpty()) {
+                logcat(LogPriority.ERROR) { "Downloads still on disk after delete: $remaining" }
+            }
             cache.removeManga(manga)
 
             // Delete source directory if empty
             val sourceDir = provider.findSourceDir(source)
-            if (sourceDir?.listFiles()?.isEmpty() == true) {
-                sourceDir.delete()
+            if (sourceDir?.listFiles()?.isEmpty() == true &&
+                provider.deleteAndReportRemaining(listOf(sourceDir)).isEmpty()
+            ) {
                 cache.removeSource(source)
             }
+            remaining.size
         }
-    }
 
     /**
      * Adds a list of chapters to be deleted later.

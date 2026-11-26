@@ -193,6 +193,22 @@ class DownloadProvider(
     }
 
     /**
+     * Deletes the given chapter files or directories and returns the paths of the ones still on disk.
+     *
+     * A leftover of an older installation belongs to another uid, so this app can't remove it. The
+     * outcome is re-checked on disk instead of trusting [UniFile.delete], which reports true on some
+     * providers while the entry is still there.
+     */
+    fun deleteAndReportRemaining(files: List<UniFile>): List<String> = buildList {
+        files.forEach { file ->
+            file.delete()
+            if (file.exists()) {
+                add(file.displayablePath)
+            }
+        }
+    }
+
+    /**
      * Returns the download directory name for a source.
      *
      * @param source the source to query.

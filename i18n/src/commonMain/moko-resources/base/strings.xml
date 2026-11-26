@@ -762,6 +762,7 @@
     <string name="manga_info_expand">More</string>
     <string name="manga_info_collapse">Less</string>
     <string name="delete_downloads_for_manga">Delete downloaded chapters?</string>
+    <string name="download_delete_failed">Some downloads stayed on disk and couldn\'t be deleted, likely leftovers of an older installation. Remove them with a file manager.</string>
     <string name="copied_to_clipboard_plain">Copied to clipboard</string>
     <string name="copied_to_clipboard">Copied to clipboard:\n%1$s</string>
     <string name="clipboard_copy_error">Failed to copy to clipboard</string>
@@ -1038,7 +1039,7 @@
     <string name="exception_offline">No Internet connection</string>
     <string name="exception_unknown_host">Couldn\'t reach %s</string>
     <string name="exception_dns_blocked">Couldn\'t reach %s. The address may be redirected by your internet provider, or it may not resolve.</string>
-    <string name="exception_unreadable_file">The downloaded file can\'t be read, it may be left over from a previous installation. Delete it and download again.</string>
+    <string name="exception_unreadable_file">The downloaded file can\'t be read, it may be left over from a previous installation the app can\'t delete. Remove it from the downloads folder with a file manager, then download again.</string>
     <string name="action_use_secure_dns">Use secure DNS</string>
     <string name="secure_dns_group">Secure DNS</string>
     <string name="secure_dns_dialog_title">Use secure DNS?</string>

@@ -48,6 +48,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import logcat.LogPriority
 import mihon.core.metro.AppCoroutineScope
+import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.core.common.preference.TriState
 import tachiyomi.core.common.util.lang.SubscriberGate
 import tachiyomi.core.common.util.lang.pausedWhileUnsubscribed
@@ -62,6 +63,7 @@ import tachiyomi.domain.source.service.SourceManager
 import tachiyomi.domain.updates.interactor.GetUpdates
 import tachiyomi.domain.updates.model.UpdatesWithRelations
 import tachiyomi.domain.updates.service.UpdatesPreferences
+import tachiyomi.i18n.MR
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 
@@ -355,15 +357,20 @@ class UpdatesViewModel(
      */
     fun deleteChapters(updatesItem: List<UpdatesItem>) {
         appScope.launch {
-            updatesItem
+            val remaining = updatesItem
                 .groupBy { it.update.mangaId }
                 .entries
-                .forEach { (mangaId, updates) ->
-                    val manga = getManga.await(mangaId) ?: return@forEach
-                    val source = sourceManager.get(manga.source) ?: return@forEach
+                .sumOf { (mangaId, updates) ->
+                    val manga = getManga.await(mangaId) ?: return@sumOf 0
+                    val source = sourceManager.get(manga.source) ?: return@sumOf 0
                     val chapters = updates.mapNotNull { getChapter.await(it.update.chapterId) }
                     downloadManager.deleteChapters(chapters, manga, source)
                 }
+            if (remaining > 0) {
+                viewModelScope.launch {
+                    snackbarHostState.showSnackbar(context.stringResource(MR.strings.download_delete_failed))
+                }
+            }
         }
         toggleAllSelection(false)
     }

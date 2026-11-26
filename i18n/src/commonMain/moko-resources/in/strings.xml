@@ -164,6 +164,7 @@
     <string name="licensed">Berlisensi</string>
     <string name="remove_from_library">Hapus dari pustaka</string>
     <string name="delete_downloads_for_manga">Hapus bab terunduh?</string>
+    <string name="download_delete_failed">Sebagian unduhan tidak bisa dihapus dan masih ada di penyimpanan, kemungkinan sisa instalasi lama. Hapus manual lewat aplikasi File.</string>
     <string name="display_mode_chapter">Bab %1$s</string>
     <string name="chapter_downloading_progress">Mengunduh (%1$d/%2$d)</string>
     <string name="chapter_error">Kesalahan</string>
@@ -699,7 +700,7 @@
     <string name="exception_http">HTTP %d, periksa situs web di WebView</string>
     <string name="exception_unknown_host">Tidak dapat mencapai %s</string>
     <string name="exception_dns_blocked">Tidak bisa menghubungi %s. Alamatnya mungkin dibelokkan penyedia internetmu, atau memang tidak bisa diterjemahkan.</string>
-    <string name="exception_unreadable_file">Berkas unduhannya tidak bisa dibaca, kemungkinan sisa instalasi sebelumnya. Hapus lalu unduh ulang.</string>
+    <string name="exception_unreadable_file">Berkas unduhannya tidak bisa dibaca, kemungkinan sisa instalasi lama yang tidak bisa dihapus aplikasi. Hapus manual dari folder unduhan lewat aplikasi File, lalu unduh ulang.</string>
     <string name="action_use_secure_dns">Pakai DNS aman</string>
     <string name="secure_dns_group">DNS aman</string>
     <string name="secure_dns_dialog_title">Pakai DNS aman?</string>
