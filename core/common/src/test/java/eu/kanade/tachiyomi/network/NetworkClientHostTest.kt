@@ -80,6 +80,32 @@ class NetworkClientHostTest {
         (host.client === first) shouldBe false
     }
 
+    /**
+     * Jalur notifikasi pref terbukti mati di perangkat uji, jadi getter harus memeriksa sendiri.
+     * Host ini memakai scope yang sudah dibatalkan supaya kolektor tidak menolong tesnya: satu-satunya
+     * kesempatan rebuild adalah saat client diambil.
+     */
+    @Test
+    fun getterRebuildsWhenNoNotificationEverArrives() {
+        val recorder = Recorder()
+        val preferences = newPreferences()
+        val host = NetworkClientHost(
+            scope = CoroutineScope(Dispatchers.Unconfined + Job().apply { cancel() }),
+            preferences = preferences,
+            resources = NetworkResources(Files.createTempDirectory("yomu-host-quiet").toFile()),
+            build = recorder.build,
+        )
+        val first = host.client
+
+        preferences.verboseLogging.set(true)
+        val second = host.client
+
+        (second === first) shouldBe false
+        recorder.signatures.last() shouldBe ClientSignature(true, true)
+        (host.client === second) shouldBe true
+        recorder.signatures.size shouldBe 2
+    }
+
     @Test
     fun doesNotRebuildForIrrelevantChange() {
         val recorder = Recorder()
