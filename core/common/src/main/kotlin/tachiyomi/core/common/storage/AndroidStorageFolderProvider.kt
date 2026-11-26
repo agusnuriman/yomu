@@ -19,13 +19,26 @@ class AndroidStorageFolderProvider(
 ) : FolderProvider {
 
     override fun directory(): File {
-        return File(
-            Environment.getExternalStorageDirectory().absolutePath + File.separator +
-                context.stringResource(MR.strings.app_name),
+        val appName = context.stringResource(MR.strings.app_name)
+        val publicDir = File(
+            Environment.getExternalStorageDirectory().absolutePath + File.separator + appName,
         )
+        // Pola yang sama dengan CoverCache: dir eksternal privat, internal kalau eksternal tak ada.
+        val privateDir = context.getExternalFilesDir(appName) ?: File(context.filesDir, appName)
+        return pickBaseDir(publicDir, privateDir)
     }
 
     override fun path(): String {
         return directory().toUri().toString()
     }
+}
+
+/**
+ * Folder publik hanya dipakai kalau benar-benar bisa dipakai. Di Android 11+ (scoped storage) aplikasi
+ * boleh membuat direktori di storage publik tapi tidak boleh membuat file di dalamnya: MediaProvider
+ * menolaknya dengan EPERM, sehingga unduhan gagal tanpa pernah selesai. Sisa folder instalasi lama
+ * dengan uid berbeda juga tidak bisa ditulisi. Folder eksternal privat tidak butuh izin sama sekali.
+ */
+internal fun pickBaseDir(publicDir: File, privateDir: File): File {
+    return if (publicDir.mkdirs() || publicDir.canWrite()) publicDir else privateDir
 }
